@@ -38,7 +38,7 @@ export const PriceCounter: React.FC<PriceCounterProps> = ({ value }) => {
   }, [value]);
 
   return (
-    <span className="tabular-nums font-extrabold text-neutral-100 font-mono">
+    <span className="tabular-nums text-4xl sm:text-5xl font-black tracking-wider text-amber-500 font-serif">
       ${displayValue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}.00
     </span>
   );

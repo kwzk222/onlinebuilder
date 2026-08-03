@@ -20,7 +20,11 @@ import {
 import jsPDF from 'jspdf';
 import confetti from 'canvas-confetti';
 
-export const MainDashboard: React.FC = () => {
+interface MainDashboardProps {
+  onReturnToStartup?: () => void;
+}
+
+export const MainDashboard: React.FC<MainDashboardProps> = ({ onReturnToStartup }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const {
     config,
@@ -220,21 +224,34 @@ export const MainDashboard: React.FC = () => {
   };
 
   const handleDownloadGLB = () => {
-    exportGuitarToGLB(config.bodyShape);
+    exportGuitarToGLB(config.bodyShape, config.instrumentType);
   };
 
   return (
-    <div className="min-h-screen bg-[#050507] text-neutral-100 flex flex-col font-sans selection:bg-neutral-800 selection:text-neutral-100">
+    <div className="min-h-screen bg-[#070709] text-neutral-100 flex flex-col font-sans selection:bg-amber-500/20 selection:text-amber-200">
 
       {/* HEADER SECTION */}
-      <header className="border-b border-neutral-900 bg-neutral-950/40 backdrop-blur-md px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 sticky top-0 z-40">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-neutral-900/80 border border-neutral-800 flex items-center justify-center text-amber-500">
-            <Guitar className="w-5 h-5" />
-          </div>
-          <div>
-            <h1 className="text-base font-extrabold tracking-widest text-neutral-100 font-mono">LUXE LUTHIERS</h1>
-            <p className="text-[10px] text-neutral-500 font-medium tracking-wider uppercase">Bespoke 3D Guitar Configurator</p>
+      <header className="border-b border-neutral-900 bg-[#070709]/80 backdrop-blur-md px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 sticky top-0 z-40">
+          <div className="flex items-center gap-4">
+            {onReturnToStartup && (
+              <button
+                onClick={onReturnToStartup}
+                title="Return to selection screen"
+                className="flex items-center gap-2 px-3 py-2 text-xs font-mono font-bold tracking-wider text-amber-500 border border-amber-500/30 hover:border-amber-500/80 hover:bg-amber-500/5 bg-neutral-950 rounded-xl transition-all"
+              >
+                ← Return
+              </button>
+            )}
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-neutral-900/60 border border-neutral-800/80 flex items-center justify-center text-amber-500/90 shadow-lg shadow-amber-500/5">
+                <Guitar className="w-5 h-5" />
+              </div>
+              <div>
+                <h1 className="text-lg font-black tracking-[0.25em] text-neutral-100 font-serif">LUXE LUTHIERS</h1>
+                <p className="text-[10px] text-neutral-500 font-mono tracking-widest uppercase mt-0.5">
+                  Bespoke 3D {config.instrumentType.toUpperCase()} Configurator
+                </p>
+              </div>
           </div>
         </div>
 
@@ -243,41 +260,41 @@ export const MainDashboard: React.FC = () => {
           <button
             onClick={undo}
             disabled={!canUndo}
-            title="Undo (Ctrl+Z)"
-            className="p-2.5 rounded-xl border border-neutral-900 bg-neutral-900/30 text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/30 disabled:opacity-30 disabled:pointer-events-none transition-all"
+            title="Undo"
+            className="p-2.5 rounded-xl border border-neutral-900 bg-neutral-950/40 text-neutral-400 hover:text-amber-500/90 hover:border-amber-500/25 disabled:opacity-20 disabled:pointer-events-none transition-all"
           >
             <Undo2 className="w-4 h-4" />
           </button>
           <button
             onClick={redo}
             disabled={!canRedo}
-            title="Redo (Ctrl+Y)"
-            className="p-2.5 rounded-xl border border-neutral-900 bg-neutral-900/30 text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/30 disabled:opacity-30 disabled:pointer-events-none transition-all"
+            title="Redo"
+            className="p-2.5 rounded-xl border border-neutral-900 bg-neutral-950/40 text-neutral-400 hover:text-amber-500/90 hover:border-amber-500/25 disabled:opacity-20 disabled:pointer-events-none transition-all"
           >
             <Redo2 className="w-4 h-4" />
           </button>
 
-          <div className="w-[1px] h-6 bg-neutral-800/60 mx-1" />
+          <div className="w-[1px] h-6 bg-neutral-900 mx-1" />
 
           <button
             onClick={resetConfig}
             title="Reset to default build"
-            className="flex items-center gap-2 px-3 py-2.5 text-xs font-semibold rounded-xl border border-neutral-900 bg-neutral-900/30 text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/30 transition-all"
+            className="flex items-center gap-2 px-3 py-2.5 text-xs font-mono font-bold rounded-xl border border-neutral-900 bg-neutral-950/40 text-neutral-400 hover:text-amber-500/90 hover:border-amber-500/25 transition-all"
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Reset</span>
+            <span className="hidden sm:inline">RESET</span>
           </button>
 
           <button
             onClick={handleShare}
-            className={`flex items-center gap-2 px-4.5 py-2.5 text-xs font-bold rounded-xl border transition-all ${
+            className={`flex items-center gap-2 px-4.5 py-2.5 text-xs font-mono font-bold rounded-xl border transition-all ${
               copied
-                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-                : 'bg-neutral-900/50 border-neutral-800 text-neutral-300 hover:border-neutral-700 hover:bg-neutral-800/50'
+                ? 'bg-amber-500/10 border-amber-500/30 text-amber-500'
+                : 'bg-neutral-950/40 border-neutral-900 text-neutral-400 hover:border-amber-500/30 hover:text-amber-500'
             }`}
           >
             {copied ? <Check className="w-3.5 h-3.5" /> : <Share2 className="w-3.5 h-3.5" />}
-            <span>{copied ? 'Copied Link' : 'Share URL'}</span>
+            <span>{copied ? 'COPIED LINK' : 'SHARE URL'}</span>
           </button>
         </div>
       </header>
@@ -294,32 +311,32 @@ export const MainDashboard: React.FC = () => {
           </div>
 
           {/* Sub-viewport actions bar (Export PNG, PDF, developer GLB utility) */}
-          <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-neutral-950/30 border border-neutral-900 rounded-2xl">
+          <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-[#0a0a0d] border border-neutral-900 rounded-2xl shadow-xl">
             <div className="flex flex-wrap items-center gap-2">
               <button
                 onClick={handleExportImage}
-                className="flex items-center gap-2 px-4 py-2.5 text-xs font-bold rounded-xl bg-neutral-900 border border-neutral-800 hover:border-neutral-700 hover:bg-neutral-800 text-neutral-200 transition-all"
+                className="flex items-center gap-2 px-4 py-2.5 text-xs font-mono font-bold rounded-xl bg-neutral-950 border border-neutral-900 hover:border-amber-500/30 hover:text-amber-500 text-neutral-400 transition-all"
               >
-                <Download className="w-3.5 h-3.5 text-neutral-400" />
-                Capture Image
+                <Download className="w-3.5 h-3.5 text-neutral-500" />
+                CAPTURE IMAGE
               </button>
 
               <button
                 onClick={handleExportPDF}
-                className="flex items-center gap-2 px-4 py-2.5 text-xs font-bold rounded-xl bg-neutral-900 border border-neutral-800 hover:border-neutral-700 hover:bg-neutral-800 text-neutral-200 transition-all"
+                className="flex items-center gap-2 px-4 py-2.5 text-xs font-mono font-bold rounded-xl bg-neutral-950 border border-neutral-900 hover:border-amber-500/30 hover:text-amber-500 text-neutral-400 transition-all"
               >
-                <FileText className="w-3.5 h-3.5 text-neutral-400" />
-                Export Spec PDF
+                <FileText className="w-3.5 h-3.5 text-neutral-500" />
+                EXPORT SPEC PDF
               </button>
             </div>
 
             <div className="group/dev relative">
               <button
                 onClick={handleDownloadGLB}
-                className="flex items-center gap-2 px-4 py-2.5 text-xs font-bold rounded-xl bg-amber-500/5 border border-amber-500/20 hover:bg-amber-500/10 text-amber-400 transition-all"
+                className="flex items-center gap-2 px-4 py-2.5 text-xs font-mono font-bold rounded-xl bg-amber-500/5 border border-amber-500/20 hover:bg-amber-500/10 text-amber-400 transition-all"
               >
                 <Sparkles className="w-3.5 h-3.5" />
-                Dev: Export GLB
+                EXPORT GLB
               </button>
               <div className="absolute right-0 bottom-full mb-2 w-56 hidden group-hover/dev:block bg-neutral-950 border border-neutral-800 text-[10px] text-neutral-400 p-2.5 rounded-lg shadow-2xl z-40">
                 Exports the current customized setup as an optimized binary .glb file. Use this to save customized versions to `/public/models`.
@@ -332,16 +349,16 @@ export const MainDashboard: React.FC = () => {
         <section className="lg:col-span-5 xl:col-span-4 flex flex-col gap-5">
 
           {/* Price & Cost Breakdown Panel */}
-          <div className="relative overflow-hidden bg-radial from-neutral-900 to-[#0e0e11] border border-neutral-800/80 p-5 rounded-3xl shadow-xl flex flex-col gap-4">
+          <div className="relative overflow-hidden bg-gradient-to-br from-[#0c0c0f] to-[#070709] border border-neutral-900 p-5 rounded-3xl shadow-[0_4px_30px_rgba(0,0,0,0.6)] flex flex-col gap-4">
 
-            {/* Gloss Highlight overlay */}
+            {/* Subtle Bronze accent highlight glow overlay */}
             <div className="absolute -top-12 -left-12 w-48 h-48 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
 
             <div className="flex items-center justify-between z-10">
-              <span className="text-xs font-mono font-bold tracking-widest text-neutral-400 uppercase">ESTIMATED PRICE</span>
+              <span className="text-xs font-mono font-bold tracking-widest text-neutral-500 uppercase">ESTIMATED VALUATION</span>
               <div className="group/cost relative flex items-center gap-1 cursor-pointer">
-                <span className="text-[10px] text-amber-500 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full font-bold">
-                  VIEW COST SPLIT
+                <span className="text-[9px] font-mono text-amber-500/80 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-md font-bold tracking-wider hover:border-amber-500/60 transition-all">
+                  VIEW COST BREAKDOWN
                 </span>
 
                 {/* Cost split breakdown tooltip on hover */}
@@ -367,9 +384,9 @@ export const MainDashboard: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex items-baseline gap-1 z-10">
+            <div className="flex items-baseline gap-1.5 z-10">
               <PriceCounter value={total} />
-              <span className="text-[10px] font-mono text-neutral-500 font-bold uppercase">USD</span>
+              <span className="text-[10px] font-mono text-amber-500 font-bold uppercase tracking-widest">USD</span>
             </div>
           </div>
 
@@ -377,23 +394,23 @@ export const MainDashboard: React.FC = () => {
           <div className="flex items-stretch border-b border-neutral-900">
             <button
               onClick={() => setActiveTab('build')}
-              className={`flex-1 py-3 text-center text-xs font-bold tracking-wider uppercase transition-all border-b-2 ${
+              className={`flex-1 py-3 text-center text-xs font-mono font-bold tracking-widest uppercase transition-all border-b ${
                 activeTab === 'build'
-                  ? 'border-neutral-200 text-neutral-100'
+                  ? 'border-amber-500/60 text-amber-500 font-black'
                   : 'border-transparent text-neutral-500 hover:text-neutral-300'
               }`}
             >
-              Configure Specifications
+              SPECIFICATIONS
             </button>
             <button
               onClick={() => setActiveTab('saved')}
-              className={`flex-1 py-3 text-center text-xs font-bold tracking-wider uppercase transition-all border-b-2 ${
+              className={`flex-1 py-3 text-center text-xs font-mono font-bold tracking-widest uppercase transition-all border-b ${
                 activeTab === 'saved'
-                  ? 'border-neutral-200 text-neutral-100'
+                  ? 'border-amber-500/60 text-amber-500 font-black'
                   : 'border-transparent text-neutral-500 hover:text-neutral-300'
               }`}
             >
-              Saved Builds ({Object.keys(savedBuilds).length})
+              SAVED ARCHIVE ({Object.keys(savedBuilds).length})
             </button>
           </div>
 
@@ -403,24 +420,24 @@ export const MainDashboard: React.FC = () => {
             ) : (
               <div className="space-y-4">
                 {/* Save Current Build Form */}
-                <form onSubmit={handleSaveBuild} className="p-4 bg-neutral-900/30 border border-neutral-800/60 rounded-2xl flex flex-col gap-3">
-                  <span className="block text-[10px] font-mono font-bold tracking-wider text-neutral-400 uppercase">Save current build slot</span>
+                <form onSubmit={handleSaveBuild} className="p-4 bg-neutral-950/40 border border-neutral-900 rounded-2xl flex flex-col gap-3">
+                  <span className="block text-[10px] font-mono font-bold tracking-widest text-neutral-500 uppercase">ARCHIVE CURRENT SPEC</span>
                   <div className="flex gap-2">
                     <input
                       type="text"
-                      placeholder="e.g. My Flamed ST"
+                      placeholder="e.g. AMBER CUSTOM SC"
                       value={slotInput}
                       onChange={(e) => setSlotInput(e.target.value)}
                       maxLength={24}
-                      className="flex-1 bg-neutral-950 border border-neutral-800 rounded-xl px-3 py-2 text-xs text-neutral-200 focus:outline-none focus:border-neutral-500"
+                      className="flex-1 bg-neutral-950 border border-neutral-900 rounded-xl px-3 py-2 text-xs text-neutral-200 font-mono focus:outline-none focus:border-amber-500/50"
                     />
                     <button
                       type="submit"
                       disabled={!slotInput.trim()}
-                      className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-neutral-100 hover:bg-neutral-200 text-neutral-950 disabled:opacity-45 disabled:pointer-events-none rounded-xl transition-all"
+                      className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-mono font-bold bg-amber-500 text-neutral-950 hover:bg-amber-400 disabled:opacity-20 disabled:pointer-events-none rounded-xl transition-all"
                     >
                       <Save className="w-3.5 h-3.5" />
-                      Save
+                      SAVE
                     </button>
                   </div>
                 </form>
@@ -451,13 +468,13 @@ export const MainDashboard: React.FC = () => {
                           <div className="flex items-center gap-1.5">
                             <button
                               onClick={() => loadBuild(slotName)}
-                              className="px-3 py-1.5 text-[11px] font-bold border border-neutral-800 hover:border-neutral-600 bg-neutral-900/60 hover:bg-neutral-800 text-neutral-300 rounded-lg transition-all"
+                              className="px-3 py-1.5 text-[11px] font-mono font-bold border border-neutral-800 hover:border-amber-500/30 hover:text-amber-500 bg-neutral-950 text-neutral-400 rounded-lg transition-all"
                             >
-                              Load
+                              LOAD
                             </button>
                             <button
                               onClick={() => deleteBuild(slotName)}
-                              className="p-1.5 text-neutral-500 hover:text-red-400 border border-transparent hover:border-neutral-800 rounded-lg transition-all"
+                              className="p-1.5 text-neutral-600 hover:text-red-400 border border-transparent hover:border-neutral-900 rounded-lg transition-all"
                               title="Delete build slot"
                             >
                               <Trash2 className="w-3.5 h-3.5" />

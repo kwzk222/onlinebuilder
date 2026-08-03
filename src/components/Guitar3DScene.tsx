@@ -13,16 +13,16 @@ interface SceneProps {
 
 export const Guitar3DScene: React.FC<SceneProps> = ({ canvasRef }) => {
   return (
-    <div className="w-full h-full relative group/canvas bg-radial from-neutral-900 via-[#0a0a0c] to-black rounded-3xl overflow-hidden border border-neutral-800/60 shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+    <div className="w-full h-full relative group/canvas bg-radial from-neutral-950 via-[#0d0d10] to-[#050507] rounded-3xl overflow-hidden border border-neutral-900 shadow-[0_10px_50px_rgba(0,0,0,0.9)]">
 
       {/* Premium Dark Glass Cinematic Backdrop */}
-      <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-neutral-950/80 via-transparent to-neutral-950/20 z-10" />
+      <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-neutral-950 via-transparent to-transparent z-10" />
 
       {/* Interactive controls tip overlay */}
       <div className="absolute top-4 left-4 z-20 pointer-events-none transition-all duration-300 opacity-60 group-hover/canvas:opacity-100">
-        <div className="flex items-center gap-2 bg-neutral-900/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-neutral-800/80 text-[11px] text-neutral-400 font-medium tracking-wide shadow-lg">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          3D INTERACTIVE STUDIO
+        <div className="flex items-center gap-2 bg-[#0d0d10]/90 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-neutral-900 text-[10px] font-mono tracking-widest text-neutral-400 shadow-xl">
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+          INTERACTIVE 3D STUDIO
         </div>
       </div>
 

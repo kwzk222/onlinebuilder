@@ -31,6 +31,7 @@ interface GuitarStore {
 }
 
 const DEFAULT_CONFIG: GuitarConfig = {
+  instrumentType: 'guitar',
   bodyShape: 'modern_st',
   bodyWood: 'alder',
   neckWood: 'roasted_maple',
@@ -146,6 +147,7 @@ export const useGuitarStore = create<GuitarStore>()(
 
             // Validate keys to prevent injecting weird states
             const validatedConfig: GuitarConfig = {
+              instrumentType: (parsed.instrumentType === 'bass' || parsed.instrumentType === 'guitar') ? parsed.instrumentType : DEFAULT_CONFIG.instrumentType,
               bodyShape: (BODY_SHAPES[parsed.bodyShape as BodyShape] ? parsed.bodyShape : DEFAULT_CONFIG.bodyShape) as BodyShape,
               bodyWood: (BODY_WOODS[parsed.bodyWood as BodyWood] ? parsed.bodyWood : DEFAULT_CONFIG.bodyWood) as BodyWood,
               neckWood: (NECK_WOODS[parsed.neckWood as NeckWood] ? parsed.neckWood : DEFAULT_CONFIG.neckWood) as NeckWood,

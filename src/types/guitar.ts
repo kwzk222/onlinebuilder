@@ -5,6 +5,7 @@ export interface Option {
   description?: string;
 }
 
+export type InstrumentType = 'guitar' | 'bass';
 export type BodyShape = 'modern_st' | 'single_cut' | 'offset';
 export type BodyWood = 'mahogany' | 'swamp_ash' | 'alder';
 export type NeckWood = 'roasted_maple' | 'mahogany' | 'walnut';
@@ -28,6 +29,7 @@ export interface FinishPresetOption extends Option {
 }
 
 export interface GuitarConfig {
+  instrumentType: InstrumentType;
   bodyShape: BodyShape;
   bodyWood: BodyWood;
   neckWood: NeckWood;
