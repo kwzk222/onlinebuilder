@@ -55,18 +55,26 @@ const DEFAULT_CONFIG: GuitarConfig = {
   // Neck Profile default
   neckProfile: 'teardrop',
   relaxedHandMeasurement: 150, // 150mm default
+  customThicknessInput: '',
+  useCustomThickness: false,
 
   // Richlite default material
   fretboardMaterial: 'black_diamond',
   modularFretboard: false,
   radiusNut: '241', // 9.5" in mm equivalent
   radiusLastFret: '406', // 16" in mm equivalent
-  edoMode: 'standard_12_edo',
+  edoValue: 12,
+  isFretless: false,
   numberOfFrets: 24,
   scalloped: false,
   scallopedStartFret: 12,
   fretboardInlay: 'dots',
   extraFretboards: [],
+
+  // Multiscale scales
+  multiscaleEnabled: false,
+  bassScaleLength: 25.5,
+  trebleScaleLength: 25.0,
 
   // Ergonomic positions
   seatedPosition: 'standard',
@@ -218,7 +226,7 @@ export const useGuitarStore = create<GuitarStore>()(
       },
     }),
     {
-      name: 'luxe-guitar-configurator-store-v2',
+      name: 'luxe-guitar-configurator-store-v3',
       partialize: (state) => ({
         config: state.config,
         savedBuilds: state.savedBuilds,
@@ -272,7 +280,7 @@ export function calculateTotalPrice(config: GuitarConfig): {
 
   // Modular System addition
   if (config.modularFretboard) {
-    breakdown.push({ category: 'Modular Fretboard System', name: 'Interchangeable Magnetic Rail', price: 250 });
+    breakdown.push({ category: 'Modular Fretboard System', name: 'Interchangeable Magnetic Pin Assembly', price: 250 });
   }
 
   // Extra Fretboards calculation ($150 each)
@@ -285,16 +293,21 @@ export function calculateTotalPrice(config: GuitarConfig): {
   }
 
   // Carbon Joint Technology is base price included. Microtonal EDO / Scalloping
-  if (config.edoMode !== 'standard_12_edo') {
-    breakdown.push({ category: 'Fretboard Format', name: config.edoMode.toUpperCase().replace('_', ' '), price: 120 });
+  if (config.edoValue !== 12 || config.isFretless) {
+    const label = config.isFretless ? 'PURE FRETLESS' : `${config.edoValue}-EDO CUSTOM`;
+    breakdown.push({ category: 'Fretboard Format', name: label, price: 120 });
   }
 
-  if (config.scalloped) {
+  if (config.scalloped && !config.isFretless) {
     breakdown.push({ category: 'Fretboard Scalloping', name: `Scalloped from fret ${config.scallopedStartFret}`, price: 180 });
   }
 
   if (config.activePreamp) {
     breakdown.push({ category: 'Electronics Upgrade', name: 'Luxe Active Preamp', price: 95 });
+  }
+
+  if (config.multiscaleEnabled) {
+    breakdown.push({ category: 'Multiscale Fret Layout', name: 'Fanned Multiscale Upgrade', price: 150 });
   }
 
   const totalDeltas = breakdown.reduce((sum, item) => sum + item.price, 0);

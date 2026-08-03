@@ -36,14 +36,14 @@ export type RichliteType =
   | 'forbidden'
   | 'sloan';
 
-export type EdoFretlessMode = 'standard_12_edo' | 'microtonal_19_edo' | 'microtonal_31_edo' | 'fretless';
 export type InlayStyle = 'none' | 'dots' | 'blocks' | 'custom';
 
 export interface ExtraFretboardConfig {
-  id: string; // unique identifier
+  id: string;
   material: RichliteType;
   inlay: InlayStyle;
-  edoMode: EdoFretlessMode;
+  edoValue: number; // customizable divisions (e.g. 12, 19, 31, etc)
+  isFretless: boolean;
   scalloped: boolean;
   scallopedStartFret: number;
   numberOfFrets: number;
@@ -79,36 +79,44 @@ export interface GuitarConfig {
   pickguardStyle: PickguardStyle;
   finishPreset: string; // id of the finish preset
 
-  // Premium Custom Specifications Addition
+  // Premium Custom Specifications
   measurementSystem: MeasurementSystem;
 
   // Neck Options
   neckProfile: NeckProfile;
-  relaxedHandMeasurement: number; // in mm or inches based on measurementSystem
+  relaxedHandMeasurement: number; // input
+  customThicknessInput: string;   // override string to type any custom thickness
+  useCustomThickness: boolean;
 
   // Fretboard Options
   fretboardMaterial: RichliteType;
   modularFretboard: boolean;
-  radiusNut: string;       // compound radius start (e.g. "9.5" or "241")
-  radiusLastFret: string;  // compound radius end (e.g. "16" or "406")
-  edoMode: EdoFretlessMode;
+  radiusNut: string;
+  radiusLastFret: string;
+  edoValue: number; // customizable divisions input, default 12
+  isFretless: boolean;
   numberOfFrets: number;
   scalloped: boolean;
   scallopedStartFret: number;
   fretboardInlay: InlayStyle;
   extraFretboards: ExtraFretboardConfig[];
 
-  // Body Ergonomics Recommendation Inputs
-  seatedPosition: SeatedPosition;
-  neckAngle: number; // degrees, default 0
+  // Scale length inputs (Supports multiscale/fanned frets if desired)
+  multiscaleEnabled: boolean;
+  bassScaleLength: number;   // e.g. 25.5 (guitar) / 34.0 (bass)
+  trebleScaleLength: number; // e.g. 25.0 / 33.0
 
-  // Hardware Expanded Choices
+  // Body Posture & Ergonomics
+  seatedPosition: SeatedPosition;
+  neckAngle: number; // degrees, default 0, strict range 0 to 60
+
+  // Hardware additions
   bridgeType: string;
   tunerType: string;
   knobType: string;
   nutType: string;
 
-  // Electronics Expanded Options
+  // Electronics additions
   activePreamp: boolean;
   toneCapacitor: string;
 }
