@@ -116,8 +116,12 @@ TOTAL PRICE: $${total.toLocaleString()}.00 USD
           </div>
         </div>
 
-        <div className="text-[9px] tracking-[0.3em] text-[#5a554f] uppercase font-bold hidden sm:block">
-          SERIES CLASSIFICATION
+        {/* Sticky Always-Visible Valuation in Top Bar */}
+        <div className="flex items-center gap-3">
+          <span className="text-[9px] tracking-[0.3em] text-[#5a554f] font-bold uppercase hidden sm:inline-block">ESTIMATED VALUATION</span>
+          <div className="border border-[#1a1a1c] px-3 py-1.5 bg-[#000000] rounded-none">
+            <PriceCounter value={total} />
+          </div>
         </div>
       </header>
 
@@ -131,12 +135,6 @@ TOTAL PRICE: $${total.toLocaleString()}.00 USD
 
         {/* RIGHT COLUMN: SCROLLABLE OPTIONS AND MINIMALIST BUY FORM */}
         <section className="flex flex-col h-auto md:h-[calc(100vh-73px)] overflow-y-auto bg-[#0c0c0d] rounded-none">
-
-          {/* Understated minimal valuation block at the very top */}
-          <div className="border-b border-[#1a1a1c] px-6 py-4 flex items-center justify-between rounded-none bg-[#0c0c0d]">
-            <span className="text-[9px] tracking-[0.3em] text-[#5a554f] font-bold uppercase">VALUATION</span>
-            <PriceCounter value={total} />
-          </div>
 
           <div className="p-6 space-y-6 flex-1 rounded-none">
             <OptionsControlPanel />
@@ -155,12 +153,12 @@ TOTAL PRICE: $${total.toLocaleString()}.00 USD
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-none">
                 <div className="rounded-none">
                   <label className="block text-[9px] text-[#5a554f] tracking-[0.25em] uppercase font-bold mb-1.5">
-                    FULL NAME
+                    FIRST AND LAST NAME
                   </label>
                   <input
                     type="text"
                     required
-                    placeholder="E.G. RICK OWENS"
+                    placeholder=""
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     className="w-full bg-[#121213] border border-[#1a1a1c] rounded-none px-3 py-2 text-[10px] uppercase tracking-wider font-bold text-[#e3e3e5] focus:outline-none focus:border-[#a39081]"
@@ -173,7 +171,7 @@ TOTAL PRICE: $${total.toLocaleString()}.00 USD
                   <input
                     type="email"
                     required
-                    placeholder="E.G. CONTACT@LUXE.COM"
+                    placeholder=""
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full bg-[#121213] border border-[#1a1a1c] rounded-none px-3 py-2 text-[10px] uppercase tracking-wider font-bold text-[#e3e3e5] focus:outline-none focus:border-[#a39081]"
@@ -187,7 +185,7 @@ TOTAL PRICE: $${total.toLocaleString()}.00 USD
                 </label>
                 <textarea
                   rows={4}
-                  placeholder="E.G. BESPOKE RAW MINERAL SATIN LACQUER SPECIFICATIONS..."
+                  placeholder=""
                   value={specialInstructions}
                   onChange={(e) => setSpecialInstructions(e.target.value)}
                   className="w-full bg-[#121213] border border-[#1a1a1c] rounded-none p-3 text-[10px] uppercase tracking-wider font-bold text-[#e3e3e5] focus:outline-none focus:border-[#a39081] resize-none"
@@ -198,7 +196,7 @@ TOTAL PRICE: $${total.toLocaleString()}.00 USD
                 type="submit"
                 className="w-full bg-[#e3e3e5] hover:bg-[#ffffff] text-[#000000] font-sans font-black tracking-[0.3em] text-[10px] py-4 rounded-none transition-all hover:tracking-[0.35em] uppercase"
               >
-                COMPILE SPECIFICATIONS & BUY
+                COMPLETE ORDER
               </button>
             </form>
           </div>

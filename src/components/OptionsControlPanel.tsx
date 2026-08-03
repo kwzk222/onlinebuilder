@@ -33,8 +33,8 @@ export const OptionsControlPanel: React.FC = () => {
           className="w-full flex items-center justify-between px-5 py-4 text-left font-bold text-[#e3e3e5] hover:bg-[#121213] transition-colors rounded-none font-sans"
         >
           <div className="flex items-center gap-3">
-            <span className="text-[9px] text-[#a39081] tracking-[0.25em] font-bold">01 /</span>
-            <span className="tracking-[0.2em] text-[10px] uppercase font-bold">BODY ARCHITECTURE</span>
+            <span className="text-[9px] text-[#a39081] tracking-[0.25em] font-bold font-sans">01 /</span>
+            <span className="tracking-[0.2em] text-[10px] uppercase font-bold font-sans">BODY ARCHITECTURE</span>
           </div>
           {activeCategory === 'body' ? <ChevronUp className="w-4 h-4 text-[#a39081]" /> : <ChevronDown className="w-4 h-4 text-[#5a554f]" />}
         </button>
@@ -43,7 +43,10 @@ export const OptionsControlPanel: React.FC = () => {
           <div className="p-5 border-t border-[#1a1a1c] space-y-6">
             {/* Body Shapes */}
             <div>
-              <span className="block text-[9px] font-bold tracking-[0.25em] text-[#5a554f] mb-3 uppercase">BODY SILHOUETTE</span>
+              <div className="flex items-center justify-between mb-3">
+                <span className="block text-[9px] font-bold tracking-[0.25em] text-[#5a554f] uppercase">BODY SILHOUETTE</span>
+                <span className="text-[8px] tracking-wider text-[#a39081] font-bold uppercase hidden sm:inline">SILHOUETTE PROFILE</span>
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 {Object.values(BODY_SHAPES).map((shape) => (
                   <button
@@ -69,7 +72,10 @@ export const OptionsControlPanel: React.FC = () => {
 
             {/* Body Woods */}
             <div>
-              <span className="block text-[9px] font-bold tracking-[0.25em] text-[#5a554f] mb-3 uppercase">BODY CORE WOOD</span>
+              <div className="flex items-center justify-between mb-3">
+                <span className="block text-[9px] font-bold tracking-[0.25em] text-[#5a554f] uppercase">BODY CORE WOOD</span>
+                <span className="text-[8px] tracking-wider text-[#a39081] font-bold uppercase hidden sm:inline">DENSITY: High-Resonant</span>
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 {Object.values(BODY_WOODS).map((wood) => (
                   <button
@@ -110,8 +116,8 @@ export const OptionsControlPanel: React.FC = () => {
           className="w-full flex items-center justify-between px-5 py-4 text-left font-bold text-[#e3e3e5] hover:bg-[#121213] transition-colors rounded-none font-sans"
         >
           <div className="flex items-center gap-3">
-            <span className="text-[9px] text-[#a39081] tracking-[0.25em] font-bold">02 /</span>
-            <span className="tracking-[0.2em] text-[10px] uppercase font-bold">LACQUER & COATINGS</span>
+            <span className="text-[9px] text-[#a39081] tracking-[0.25em] font-bold font-sans">02 /</span>
+            <span className="tracking-[0.2em] text-[10px] uppercase font-bold font-sans">LACQUER & COATINGS</span>
           </div>
           {activeCategory === 'finish' ? <ChevronUp className="w-4 h-4 text-[#a39081]" /> : <ChevronDown className="w-4 h-4 text-[#5a554f]" />}
         </button>
@@ -163,8 +169,8 @@ export const OptionsControlPanel: React.FC = () => {
           className="w-full flex items-center justify-between px-5 py-4 text-left font-bold text-[#e3e3e5] hover:bg-[#121213] transition-colors rounded-none font-sans"
         >
           <div className="flex items-center gap-3">
-            <span className="text-[9px] text-[#a39081] tracking-[0.25em] font-bold">03 /</span>
-            <span className="tracking-[0.2em] text-[10px] uppercase font-bold">NECK & FRETS</span>
+            <span className="text-[9px] text-[#a39081] tracking-[0.25em] font-bold font-sans">03 /</span>
+            <span className="tracking-[0.2em] text-[10px] uppercase font-bold font-sans">NECK & FRETS</span>
           </div>
           {activeCategory === 'neck' ? <ChevronUp className="w-4 h-4 text-[#a39081]" /> : <ChevronDown className="w-4 h-4 text-[#5a554f]" />}
         </button>
@@ -246,8 +252,8 @@ export const OptionsControlPanel: React.FC = () => {
           className="w-full flex items-center justify-between px-5 py-4 text-left font-bold text-[#e3e3e5] hover:bg-[#121213] transition-colors rounded-none font-sans"
         >
           <div className="flex items-center gap-3">
-            <span className="text-[9px] text-[#a39081] tracking-[0.25em] font-bold">04 /</span>
-            <span className="tracking-[0.2em] text-[10px] uppercase font-bold">ELECTRONICS & TRANSDUCERS</span>
+            <span className="text-[9px] text-[#a39081] tracking-[0.25em] font-bold font-sans">04 /</span>
+            <span className="tracking-[0.2em] text-[10px] uppercase font-bold font-sans">ELECTRONICS & TRANSDUCERS</span>
           </div>
           {activeCategory === 'pickups' ? <ChevronUp className="w-4 h-4 text-[#a39081]" /> : <ChevronDown className="w-4 h-4 text-[#5a554f]" />}
         </button>
@@ -290,8 +296,8 @@ export const OptionsControlPanel: React.FC = () => {
           className="w-full flex items-center justify-between px-5 py-4 text-left font-bold text-[#e3e3e5] hover:bg-[#121213] transition-colors rounded-none font-sans"
         >
           <div className="flex items-center gap-3">
-            <span className="text-[9px] text-[#a39081] tracking-[0.25em] font-bold">05 /</span>
-            <span className="tracking-[0.2em] text-[10px] uppercase font-bold">PLATINGS & ACCENTUATION</span>
+            <span className="text-[9px] text-[#a39081] tracking-[0.25em] font-bold font-sans">05 /</span>
+            <span className="tracking-[0.2em] text-[10px] uppercase font-bold font-sans">PLATINGS & ACCENTUATION</span>
           </div>
           {activeCategory === 'hardware' ? <ChevronUp className="w-4 h-4 text-[#a39081]" /> : <ChevronDown className="w-4 h-4 text-[#5a554f]" />}
         </button>
