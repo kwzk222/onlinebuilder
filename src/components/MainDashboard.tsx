@@ -60,7 +60,7 @@ CLIENT PROFILE:
 - Email: ${email.trim()}
 
 INSTRUMENT MODEL:
-- Type: ${config.instrumentType.toUpperCase()}
+- Type: ${config.instrumentType === 'bass' ? 'ACOUSTIC' : 'ELECTRIC'}
 - Body Shape: ${config.bodyShape.toUpperCase()}
 
 NECK SPECIFICATIONS (BOLT-THROUGH CARBON FIBER):
@@ -114,7 +114,7 @@ TOTAL PRICE: $${total.toLocaleString()}.00 USD
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `Luxe_Luthiers_Order_${config.instrumentType}_${Date.now()}.txt`;
+    link.download = `Luxe_Luthiers_Order_${config.instrumentType === 'bass' ? 'Acoustic' : 'Electric'}_${Date.now()}.txt`;
     link.click();
     URL.revokeObjectURL(url);
 
@@ -143,7 +143,7 @@ TOTAL PRICE: $${total.toLocaleString()}.00 USD
           <div className="rounded-none">
             <h1 className="text-base font-black tracking-[0.4em] text-[#e3e3e5] uppercase">LUXE LUTHIERS</h1>
             <p className="text-[9px] text-[#5a554f] font-bold tracking-[0.2em] uppercase mt-0.5">
-              BESPOKE {config.instrumentType.toUpperCase()} STUDIO
+              BESPOKE {config.instrumentType === 'bass' ? 'ACOUSTIC' : 'ELECTRIC'} STUDIO
             </p>
           </div>
         </div>
