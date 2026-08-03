@@ -16,6 +16,46 @@ export type PickguardStyle = 'three_ply_black' | 'tortoiseshell' | 'white_pearl'
 
 export type FinishType = 'solid' | 'metallic' | 'translucent' | 'matte' | 'satin';
 
+export type MeasurementSystem = 'metric' | 'imperial';
+export type NeckProfile = 'teardrop' | 'scooped' | 'trapezoid';
+
+export type RichliteType =
+  | 'black_diamond'
+  | 'maple_valley'
+  | 'grays_harbor'
+  | 'rosedale'
+  | 'redstone'
+  | 'browns_point'
+  | 'chocolate_glacier'
+  | 'blue_canyon'
+  | 'columbia'
+  | 'luna'
+  | 'eldorado'
+  | 'dragontail'
+  | 'glacier'
+  | 'forbidden'
+  | 'sloan';
+
+export type EdoFretlessMode = 'standard_12_edo' | 'microtonal_19_edo' | 'microtonal_31_edo' | 'fretless';
+export type InlayStyle = 'none' | 'dots' | 'blocks' | 'custom';
+
+export interface ExtraFretboardConfig {
+  id: string; // unique identifier
+  material: RichliteType;
+  inlay: InlayStyle;
+  edoMode: EdoFretlessMode;
+  scalloped: boolean;
+  scallopedStartFret: number;
+  numberOfFrets: number;
+}
+
+export type SeatedPosition =
+  | 'classical_chair'
+  | 'classical_left_leg_stool'
+  | 'standard'
+  | 'standard_right_leg_stool'
+  | 'right_leg_strap';
+
 export interface FinishPresetOption extends Option {
   type: FinishType;
   color: string;           // Base hex color
@@ -38,10 +78,49 @@ export interface GuitarConfig {
   hardwareColor: HardwareColor;
   pickguardStyle: PickguardStyle;
   finishPreset: string; // id of the finish preset
+
+  // Premium Custom Specifications Addition
+  measurementSystem: MeasurementSystem;
+
+  // Neck Options
+  neckProfile: NeckProfile;
+  relaxedHandMeasurement: number; // in mm or inches based on measurementSystem
+
+  // Fretboard Options
+  fretboardMaterial: RichliteType;
+  modularFretboard: boolean;
+  radiusNut: string;       // compound radius start (e.g. "9.5" or "241")
+  radiusLastFret: string;  // compound radius end (e.g. "16" or "406")
+  edoMode: EdoFretlessMode;
+  numberOfFrets: number;
+  scalloped: boolean;
+  scallopedStartFret: number;
+  fretboardInlay: InlayStyle;
+  extraFretboards: ExtraFretboardConfig[];
+
+  // Body Ergonomics Recommendation Inputs
+  seatedPosition: SeatedPosition;
+  neckAngle: number; // degrees, default 0
+
+  // Hardware Expanded Choices
+  bridgeType: string;
+  tunerType: string;
+  knobType: string;
+  nutType: string;
+
+  // Electronics Expanded Options
+  activePreamp: boolean;
+  toneCapacitor: string;
 }
 
 export interface CostBreakdownItem {
   category: string;
   name: string;
   price: number;
+}
+export interface FretboardMaterialOption {
+  id: RichliteType;
+  name: string;
+  description: string;
+  color: string;
 }

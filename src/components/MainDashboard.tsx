@@ -45,6 +45,11 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ onReturnToStartup 
       return;
     }
 
+    // Calculations for biometric estimation
+    const estThickness = Math.max(16, Math.min(26, config.relaxedHandMeasurement * (config.measurementSystem === 'metric' ? 0.15 : 0.15 * 25.4)));
+    const thicknessMetricStr = `${estThickness.toFixed(1)} mm`;
+    const thicknessImperialStr = `${(estThickness / 25.4).toFixed(2)} in`;
+
     const orderDetails = `==========================================================
 BESPOKE CUSTOM SHOP SPECIFICATIONS & ORDER DETAILS
 ==========================================================
@@ -56,16 +61,42 @@ INSTRUMENT MODEL:
 - Type: ${config.instrumentType.toUpperCase()}
 - Body Shape: ${config.bodyShape.toUpperCase()}
 
+NECK SPECIFICATIONS (MONOCOQUE CARBON TECHNOLOGY):
+- Neck Profile: ${config.neckProfile.toUpperCase()}
+- Hand Span Grip: ${config.relaxedHandMeasurement} ${config.measurementSystem === 'metric' ? 'mm' : 'in'}
+- Calculated Bespoke Thickness: ${config.measurementSystem === 'metric' ? thicknessMetricStr : thicknessImperialStr}
+- Base Shaft Wood: ${config.neckWood.toUpperCase().replace('_', ' ')}
+
+FRETBOARD MATRIX (FSC® RECYCLED RICHLITE):
+- Richlite Material: ${config.fretboardMaterial.toUpperCase().replace('_', ' ')}
+- Compound Radius: Nut (${config.radiusNut}) -> Last Fret (${config.radiusLastFret})
+- Tuning Mode: ${config.edoMode.toUpperCase().replace(/_/g, ' ')}
+- Number of Frets: ${config.edoMode === 'fretless' ? 'FRETLESS (NONE)' : config.numberOfFrets}
+- Scalloped: ${config.scalloped ? `YES (From Fret ${config.scallopedStartFret})` : 'NO'}
+- Inlay Style: ${config.fretboardInlay.toUpperCase()}
+- Modular Swap System: ${config.modularFretboard ? 'YES (Interchangeable magnetic rail alignment)' : 'NO'}
+
+${config.extraFretboards.length > 0 ? `MODULAR ACCESSORY BOARDS:\n${config.extraFretboards.map((b, i) => `--- EXTRA BOARD #0${i+1} ---\n  - Material: ${b.material.toUpperCase().replace('_', ' ')}\n  - Tuning Mode: ${b.edoMode.toUpperCase().replace(/_/g, ' ')}\n  - Inlay: ${b.inlay.toUpperCase()}\n  - Frets length: ${b.edoMode === 'fretless' ? 'FRETLESS' : b.numberOfFrets}\n`).join('\n')}` : ''}
 CORE MATERIALS & LACQUERS:
 - Body Wood: ${config.bodyWood.toUpperCase()}
 - Lacquer Finish: ${config.finishPreset.toUpperCase().replace(/_/g, ' ')}
-- Neck Wood: ${config.neckWood.toUpperCase().replace('_', ' ')}
-- Fretboard: ${config.fretboardWood.toUpperCase()}
 
-HARDWARE & CONTROLS:
-- Pickups Layout: ${config.pickupsLayout.toUpperCase()}
-- Hardware Finish: ${config.hardwareColor.toUpperCase().replace('_', ' ')}
-- Pickguard Style: ${config.pickguardStyle.toUpperCase().replace(/_/g, ' ')}
+ERGONOMIC SPECIFICATIONS:
+- Intended Seated Posture: ${config.seatedPosition.toUpperCase().replace(/_/g, ' ')}
+- Target Attack Neck Angle: ${config.neckAngle}° (horizontal relative)
+
+HARDWARE & PLATING ANCHORAGE:
+- Bridge Architecture: ${config.bridgeType.toUpperCase().replace(/_/g, ' ')}
+- Tuning Pegs: ${config.tunerType.toUpperCase().replace(/_/g, ' ')}
+- Knob Style: ${config.knobType.toUpperCase().replace(/_/g, ' ')}
+- Nut Material: ${config.nutType.toUpperCase().replace(/_/g, ' ')}
+- Metallic Plating: ${config.hardwareColor.toUpperCase().replace('_', ' ')}
+- Pickguard / Cover: ${config.pickguardStyle.toUpperCase().replace(/_/g, ' ')}
+
+ELECTRONICS & ANALOG FILTERS:
+- Electromagnetic Layout: ${config.pickupsLayout.toUpperCase()}
+- Active Preamplifier (18V): ${config.activePreamp ? 'YES' : 'NO'}
+- Tone Capacitor: ${config.toneCapacitor.toUpperCase().replace(/_/g, ' ')}
 
 SPECIAL INSTRUCTIONS / DESIGN NOTES:
 ${specialInstructions.trim() ? specialInstructions.trim() : 'None provided.'}
