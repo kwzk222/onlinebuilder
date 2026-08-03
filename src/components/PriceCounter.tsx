@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
 
-// Beautiful smoothly animating price Counter using requestAnimationFrame (for maximum 60fps performance)
-
 interface PriceCounterProps {
   value: number;
 }
@@ -38,8 +36,8 @@ export const PriceCounter: React.FC<PriceCounterProps> = ({ value }) => {
   }, [value]);
 
   return (
-    <span className="tabular-nums text-4xl sm:text-5xl font-black tracking-wider text-amber-500 font-serif">
-      ${displayValue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}.00
+    <span className="text-sm font-bold tracking-[0.2em] text-[#a39081] font-sans">
+      ${displayValue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}.00 USD
     </span>
   );
 };

@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { useGuitarStore, calculateTotalPrice } from '../store/guitarStore';
 import { Guitar3DScene } from './Guitar3DScene';
 import { OptionsControlPanel } from './OptionsControlPanel';
+import { PriceCounter } from './PriceCounter';
 import confetti from 'canvas-confetti';
 
 interface MainDashboardProps {
@@ -19,7 +20,6 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ onReturnToStartup 
   const [email, setEmail] = useState('');
   const [specialInstructions, setSpecialInstructions] = useState('');
 
-  // Load configuration from share parameter 'b' if it exists in URL on mount
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const bCode = params.get('b');
@@ -28,15 +28,14 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ onReturnToStartup 
       if (success) {
         window.history.replaceState({}, document.title, window.location.pathname);
         confetti({
-          particleCount: 100,
-          spread: 60,
-          colors: ['#c19a4e', '#ffffff']
+          particleCount: 50,
+          spread: 40,
+          colors: ['#a39081', '#ffffff']
         });
       }
     }
   }, [loadFromShareCode]);
 
-  // Pricing calculations
   const { total, base, breakdown } = calculateTotalPrice(config);
 
   const handleBuy = (e: React.FormEvent) => {
@@ -46,7 +45,6 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ onReturnToStartup 
       return;
     }
 
-    // Compile order details
     const orderDetails = `==========================================================
 BESPOKE CUSTOM SHOP SPECIFICATIONS & ORDER DETAILS
 ==========================================================
@@ -89,118 +87,116 @@ TOTAL PRICE: $${total.toLocaleString()}.00 USD
     URL.revokeObjectURL(url);
 
     confetti({
-      particleCount: 150,
-      spread: 80,
-      colors: ['#c19a4e', '#ffffff', '#000000']
+      particleCount: 100,
+      spread: 60,
+      colors: ['#a39081', '#ffffff']
     });
   };
 
   return (
-    <div className="min-h-screen bg-[#000000] text-neutral-100 flex flex-col font-sans selection:bg-amber-600/20 selection:text-amber-200 rounded-none">
+    <div className="min-h-screen bg-[#0c0c0d] text-[#e3e3e5] flex flex-col font-sans selection:bg-[#a39081]/20 selection:text-[#e3e3e5] rounded-none">
 
-      {/* HEADER SECTION - Raw, brutalist border and uppercase mono font */}
-      <header className="border-b border-neutral-900 bg-[#000000] px-6 py-4 flex flex-row items-center justify-between rounded-none">
-        <div className="flex items-center gap-4">
+      {/* HEADER SECTION - Raw, brutalist borders and square Return button */}
+      <header className="border-b border-[#1a1a1c] bg-[#0c0c0d] px-6 py-4 flex flex-row items-center justify-between rounded-none">
+        <div className="flex items-center gap-4 rounded-none">
           {onReturnToStartup && (
             <button
               onClick={onReturnToStartup}
-              title="Return to selection screen"
-              className="px-3 py-1.5 text-[10px] font-mono tracking-widest text-neutral-400 border border-neutral-900 hover:border-amber-600 hover:text-amber-600 bg-black rounded-none transition-all uppercase"
+              title="Return"
+              className="w-10 h-10 flex items-center justify-center text-sm font-bold text-[#a39081] border border-[#1a1a1c] hover:border-[#a39081] hover:text-[#e3e3e5] bg-[#0c0c0d] rounded-none transition-colors"
             >
-              ← RETURN
+              ←
             </button>
           )}
-          <div>
-            <h1 className="text-base font-black tracking-[0.4em] text-neutral-200 font-serif">LUXE LUTHIERS</h1>
-            <p className="text-[9px] text-neutral-600 font-mono tracking-widest uppercase mt-0.5">
+          <div className="rounded-none">
+            <h1 className="text-base font-black tracking-[0.4em] text-[#e3e3e5] uppercase">LUXE LUTHIERS</h1>
+            <p className="text-[9px] text-[#5a554f] font-bold tracking-[0.2em] uppercase mt-0.5">
               BESPOKE {config.instrumentType.toUpperCase()} STUDIO
             </p>
           </div>
         </div>
 
-        <div className="text-[10px] font-mono tracking-widest text-neutral-600">
+        <div className="text-[9px] tracking-[0.3em] text-[#5a554f] uppercase font-bold hidden sm:block">
           SERIES CLASSIFICATION
         </div>
       </header>
 
       {/* MAIN VIEWPORT - EXACT 50/50 SPLIT WITHOUT ROUNDED CORNERS */}
-      <main className="flex-1 grid grid-cols-1 md:grid-cols-2">
+      <main className="flex-1 grid grid-cols-1 md:grid-cols-2 rounded-none">
 
         {/* LEFT COLUMN: THE CINEMATIC 3D SCREEN - NO OVERLAYS OR BUTTONS */}
-        <section className="relative border-b md:border-b-0 md:border-r border-neutral-900 h-[50vh] md:h-auto min-h-[350px]">
+        <section className="relative border-b md:border-b-0 md:border-r border-[#1a1a1c] h-[50vh] md:h-auto min-h-[350px] rounded-none bg-[#050506]">
           <Guitar3DScene canvasRef={canvasRef} />
         </section>
 
         {/* RIGHT COLUMN: SCROLLABLE OPTIONS AND MINIMALIST BUY FORM */}
-        <section className="flex flex-col h-auto md:h-[calc(100vh-69px)] overflow-y-auto bg-[#000000]">
+        <section className="flex flex-col h-auto md:h-[calc(100vh-73px)] overflow-y-auto bg-[#0c0c0d] rounded-none">
 
-          {/* Subtle minimal valuation block at the very top */}
-          <div className="border-b border-neutral-900 px-6 py-4 flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold tracking-widest text-neutral-600 uppercase">VALUATION</span>
-            <span className="text-sm font-mono font-bold tracking-widest text-amber-600">
-              ${total.toLocaleString()}.00 USD
-            </span>
+          {/* Understated minimal valuation block at the very top */}
+          <div className="border-b border-[#1a1a1c] px-6 py-4 flex items-center justify-between rounded-none bg-[#0c0c0d]">
+            <span className="text-[9px] tracking-[0.3em] text-[#5a554f] font-bold uppercase">VALUATION</span>
+            <PriceCounter value={total} />
           </div>
 
-          <div className="p-6 space-y-6 flex-1">
+          <div className="p-6 space-y-6 flex-1 rounded-none">
             <OptionsControlPanel />
 
             {/* ORDER INITIATION FORM */}
-            <form onSubmit={handleBuy} className="border-t border-neutral-900 pt-8 space-y-5">
-              <div>
-                <h3 className="text-xs font-mono font-bold tracking-widest text-neutral-400 uppercase mb-2">
+            <form onSubmit={handleBuy} className="border-t border-[#1a1a1c] pt-8 space-y-5 rounded-none">
+              <div className="rounded-none">
+                <h3 className="text-[10px] tracking-[0.3em] text-[#a39081] font-bold uppercase mb-2">
                   CLIENT ARCHIVE
                 </h3>
-                <p className="text-[10px] leading-relaxed text-neutral-600 mb-4">
+                <p className="text-[10px] leading-relaxed text-[#5a554f] uppercase tracking-wider font-bold">
                   Provide your profile to compile full bespoke build blueprints and financial specifications.
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-[9px] font-mono text-neutral-500 tracking-widest uppercase mb-1.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-none">
+                <div className="rounded-none">
+                  <label className="block text-[9px] text-[#5a554f] tracking-[0.25em] uppercase font-bold mb-1.5">
                     FULL NAME
                   </label>
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Rick Owens"
+                    placeholder="E.G. RICK OWENS"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full bg-[#070708] border border-neutral-900 rounded-none px-3 py-2 text-xs font-mono text-neutral-200 focus:outline-none focus:border-amber-600/60"
+                    className="w-full bg-[#121213] border border-[#1a1a1c] rounded-none px-3 py-2 text-[10px] uppercase tracking-wider font-bold text-[#e3e3e5] focus:outline-none focus:border-[#a39081]"
                   />
                 </div>
-                <div>
-                  <label className="block text-[9px] font-mono text-neutral-500 tracking-widest uppercase mb-1.5">
+                <div className="rounded-none">
+                  <label className="block text-[9px] text-[#5a554f] tracking-[0.25em] uppercase font-bold mb-1.5">
                     EMAIL ADDRESS
                   </label>
                   <input
                     type="email"
                     required
-                    placeholder="e.g. contact@luxe.com"
+                    placeholder="E.G. CONTACT@LUXE.COM"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-[#070708] border border-neutral-900 rounded-none px-3 py-2 text-xs font-mono text-neutral-200 focus:outline-none focus:border-amber-600/60"
+                    className="w-full bg-[#121213] border border-[#1a1a1c] rounded-none px-3 py-2 text-[10px] uppercase tracking-wider font-bold text-[#e3e3e5] focus:outline-none focus:border-[#a39081]"
                   />
                 </div>
               </div>
 
-              <div>
-                <label className="block text-[9px] font-mono text-neutral-500 tracking-widest uppercase mb-1.5">
+              <div className="rounded-none">
+                <label className="block text-[9px] text-[#5a554f] tracking-[0.25em] uppercase font-bold mb-1.5">
                   SPECIAL INSTRUCTIONS & DESIGN NOTES
                 </label>
                 <textarea
                   rows={4}
-                  placeholder="e.g. Bespoke matte black satin lacquer request or specific neck diameter profiles..."
+                  placeholder="E.G. BESPOKE RAW MINERAL SATIN LACQUER SPECIFICATIONS..."
                   value={specialInstructions}
                   onChange={(e) => setSpecialInstructions(e.target.value)}
-                  className="w-full bg-[#070708] border border-neutral-900 rounded-none p-3 text-xs font-mono text-neutral-200 focus:outline-none focus:border-amber-600/60 resize-none"
+                  className="w-full bg-[#121213] border border-[#1a1a1c] rounded-none p-3 text-[10px] uppercase tracking-wider font-bold text-[#e3e3e5] focus:outline-none focus:border-[#a39081] resize-none"
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full bg-neutral-100 hover:bg-neutral-200 text-[#000000] font-mono font-bold tracking-[0.2em] text-xs py-3.5 rounded-none transition-all hover:tracking-[0.25em]"
+                className="w-full bg-[#e3e3e5] hover:bg-[#ffffff] text-[#000000] font-sans font-black tracking-[0.3em] text-[10px] py-4 rounded-none transition-all hover:tracking-[0.35em] uppercase"
               >
                 COMPILE SPECIFICATIONS & BUY
               </button>
