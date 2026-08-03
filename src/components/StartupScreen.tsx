@@ -43,9 +43,13 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
   const gridLineOpacity = Math.max(0.05, 1 - scrollRatio * 2.5);
   const textFadeOut = Math.max(0, 1 - scrollRatio * 3.0);
 
-  // Background big numbers drift out of screen
-  const num01Transform = `translate(${scrollRatio * -180}px, ${scrollRatio * -60}px) scale(${1 + scrollRatio * 0.4})`;
-  const num02Transform = `translate(${scrollRatio * 180}px, ${scrollRatio * -60}px) scale(${1 + scrollRatio * 0.4})`;
+  // Background drift offsets
+  const num01Transform = `translate(${scrollRatio * -220}px, ${scrollRatio * -80}px) scale(${1 + scrollRatio * 0.4})`;
+  const num02Transform = `translate(${scrollRatio * 220}px, ${scrollRatio * -80}px) scale(${1 + scrollRatio * 0.4})`;
+
+  // Identity unique morph transformations
+  const acousticIdTransform = `translate(${scrollRatio * -140}px, ${scrollRatio * 40}px) rotate(${scrollRatio * 45}deg) scale(${1 - scrollRatio * 0.2})`;
+  const electricIdTransform = `translate(${scrollRatio * 140}px, ${scrollRatio * 40}px) scale(${1 - scrollRatio * 0.1})`;
 
   // Central architectural panel scale/collapse
   const splitScale = 1 - scrollRatio * 0.08;
@@ -95,8 +99,26 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
         {/* SECTOR 01: ACOUSTIC PORTAL */}
         <button
           onClick={() => onSelect('bass')} // Maps to bass procedural parameters
-          className="group relative flex-1 flex flex-col justify-end p-8 md:p-16 text-left border-b md:border-b-0 md:border-r border-[#1c1c1f] focus:outline-none transition-all duration-700 hover:bg-[#060607]/80 bg-transparent rounded-none z-20"
+          className="group relative flex-1 flex flex-col justify-end p-8 md:p-16 text-left border-b md:border-b-0 md:border-r border-[#1c1c1f] focus:outline-none transition-all duration-700 hover:bg-[#060607]/80 bg-transparent rounded-none z-20 overflow-hidden"
         >
+          {/* UNIQUE ACOUSTIC VISUAL IDENTITY: Concentric Resonator Soundboard Wave Grid */}
+          <div
+            className="absolute top-[25%] left-12 w-64 h-64 border border-[#a39081]/5 rounded-full flex items-center justify-center pointer-events-none z-0"
+            style={{
+              transform: acousticIdTransform,
+              transition: 'transform 0.1s ease-out'
+            }}
+          >
+            <div className="w-48 h-48 border border-dashed border-[#a39081]/10 rounded-full flex items-center justify-center animate-spin-slow">
+              <div className="w-32 h-32 border border-[#a39081]/15 rounded-full flex items-center justify-center">
+                <div className="w-16 h-16 border border-dashed border-[#a39081]/20 rounded-full" />
+              </div>
+            </div>
+            {/* Minimal architectural crosshair markers */}
+            <div className="absolute w-full h-[1px] bg-[#a39081]/5" />
+            <div className="absolute h-full w-[1px] bg-[#a39081]/5" />
+          </div>
+
           {/* Drifting large number background */}
           <div
             className="absolute top-[20%] left-6 md:left-20 text-[14rem] md:text-[22rem] font-black text-[#0a0a0b] group-hover:text-[#111112] transition-colors duration-500 pointer-events-none z-0 select-none"
@@ -122,6 +144,14 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
             <span>CARBON FIBER RESONATOR</span>
           </div>
 
+          {/* Unique Structural Tonal Density Matrix overlaying on hover */}
+          <div className="absolute top-12 left-12 hidden md:block text-[8px] text-[#423f40] font-mono tracking-widest space-y-1.5 opacity-60 pointer-events-none z-10 transition-all group-hover:translate-x-2 group-hover:opacity-100">
+            <div>[ CHAMBER VOL : 78.4% ]</div>
+            <div>[ MAT DENSITY : 1240 KG/M³ ]</div>
+            <div>[ SOUNDBOARD BRACING : MONOCOQUE RIBS ]</div>
+            <div>[ COUPLING COEFFICIENT : 0.88 ]</div>
+          </div>
+
           {/* Interactive Portal Specs */}
           <div className="relative z-20 flex flex-col gap-2 rounded-none max-w-lg mt-auto">
             <div className="text-[8.5px] tracking-[0.4em] text-[#5a554f] font-black uppercase">
@@ -143,8 +173,30 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
         {/* SECTOR 02: ELECTRIC PORTAL */}
         <button
           onClick={() => onSelect('guitar')} // Maps to guitar parameters
-          className="group relative flex-1 flex flex-col justify-end p-8 md:p-16 text-left focus:outline-none transition-all duration-700 hover:bg-[#060607]/80 bg-transparent rounded-none z-20"
+          className="group relative flex-1 flex flex-col justify-end p-8 md:p-16 text-left focus:outline-none transition-all duration-700 hover:bg-[#060607]/80 bg-transparent rounded-none z-20 overflow-hidden"
         >
+          {/* UNIQUE ELECTRIC VISUAL IDENTITY: Electromagnetic Flux wireframe block */}
+          <div
+            className="absolute top-[25%] right-12 w-64 h-48 border border-[#a39081]/5 pointer-events-none z-0"
+            style={{
+              transform: electricIdTransform,
+              transition: 'transform 0.1s ease-out'
+            }}
+          >
+            {/* Grid coordinate system */}
+            <div className="grid grid-cols-4 grid-rows-4 w-full h-full opacity-40">
+              {[...Array(16)].map((_, i) => (
+                <div key={i} className="border-[0.5px] border-[#a39081]/10 flex items-center justify-center">
+                  {i === 5 && <div className="w-2 h-2 bg-[#a39081]/30 rounded-none animate-pulse" />}
+                  {i === 10 && <div className="w-1.5 h-1.5 bg-[#a39081]/40 rounded-none" />}
+                </div>
+              ))}
+            </div>
+            {/* Interactive diagonal radar sweeps */}
+            <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#a39081]/35 to-transparent animate-pulse" />
+            <div className="absolute top-[50%] left-[25%] text-[7px] font-mono text-[#a39081]/40 uppercase tracking-widest">[ COIL_MATRIX_ACTIVE ]</div>
+          </div>
+
           {/* Drifting large number background */}
           <div
             className="absolute top-[20%] right-6 md:right-20 text-[14rem] md:text-[22rem] font-black text-[#0a0a0b] group-hover:text-[#111112] transition-colors duration-500 pointer-events-none z-0 select-none"
@@ -168,6 +220,14 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
             <span>SOLID WOOD LACQUERS</span>
             <span>•</span>
             <span>ELECTROMAGNETIC HUMBUCKERS</span>
+          </div>
+
+          {/* Unique Active Electromagnetic Specifications overlaying on hover */}
+          <div className="absolute top-12 right-12 hidden md:block text-[8px] text-[#423f40] font-mono tracking-widest space-y-1.5 text-right opacity-60 pointer-events-none z-10 transition-all group-hover:-translate-x-2 group-hover:opacity-100">
+            <div>[ VOLTAGE RAIL : 18V DUAL ]</div>
+            <div>[ BAL IMPEDANCE : 10.4K OHM ]</div>
+            <div>[ TRANS CAP : 0.022UF ANALOG ]</div>
+            <div>[ SIGNAL RATIO : 110 DB ]</div>
           </div>
 
           {/* Interactive Portal Specs */}
