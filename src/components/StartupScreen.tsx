@@ -9,9 +9,55 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
   const [scrollY, setScrollY] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const [viewportHeight, setViewportHeight] = useState(800);
+  const [windowWidth, setWindowWidth] = useState(1200);
 
-  // Hover states for Specimens (mimicking the Lando Norris helmet selection)
+  // Refs for precise dynamic offset calculations
+  const heroRef = useRef<HTMLDivElement>(null);
+  const aboutRef = useRef<HTMLDivElement>(null);
+  const innovationsRef = useRef<HTMLDivElement>(null);
+  const galleryRef = useRef<HTMLDivElement>(null);
+  const contactRef = useRef<HTMLDivElement>(null);
+
+  // Offset states
+  const [offsets, setOffsets] = useState({
+    hero: 0,
+    about: 300,
+    innovations: 1100,
+    gallery: 2000,
+    contact: 3800,
+  });
+
+  const [heights, setHeights] = useState({
+    about: 800,
+    innovations: 900,
+    gallery: 1600,
+    contact: 900,
+  });
+
+  // Hover states for Specimens
   const [hoveredSpecimen, setHoveredSpecimen] = useState<number | null>(null);
+
+  const calculateOffsets = () => {
+    if (containerRef.current) {
+      setViewportHeight(window.innerHeight);
+      setWindowWidth(window.innerWidth);
+
+      setOffsets({
+        hero: heroRef.current?.offsetTop ?? 0,
+        about: aboutRef.current?.offsetTop ?? 400,
+        innovations: innovationsRef.current?.offsetTop ?? 1200,
+        gallery: galleryRef.current?.offsetTop ?? 2100,
+        contact: contactRef.current?.offsetTop ?? 3800,
+      });
+
+      setHeights({
+        about: aboutRef.current?.offsetHeight ?? 800,
+        innovations: innovationsRef.current?.offsetHeight ?? 900,
+        gallery: galleryRef.current?.offsetHeight ?? 1600,
+        contact: contactRef.current?.offsetHeight ?? 900,
+      });
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -21,7 +67,7 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
     };
 
     const handleResize = () => {
-      setViewportHeight(window.innerHeight);
+      calculateOffsets();
     };
 
     const currentContainer = containerRef.current;
@@ -29,23 +75,98 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
       currentContainer.addEventListener('scroll', handleScroll, { passive: true });
     }
     window.addEventListener('resize', handleResize);
-    setViewportHeight(window.innerHeight);
+
+    // Initial run & timeout to ensure components render completely
+    calculateOffsets();
+    const timer = setTimeout(calculateOffsets, 200);
 
     return () => {
       if (currentContainer) {
         currentContainer.removeEventListener('scroll', handleScroll);
       }
       window.removeEventListener('resize', handleResize);
+      clearTimeout(timer);
     };
   }, []);
 
-  // Calculate scroll progress for entry animations
+  // Programmatic smooth scrolling with a custom, ultra-responsive ease-out animation
+  const scrollToPosition = (targetY: number) => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const startY = container.scrollTop;
+    const distance = targetY - startY;
+    const duration = 400; // Ultra-fast responsive 400ms scroll transition
+    let startTime: number | null = null;
+
+    // Fast and premium ease-out cubic curve
+    const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+
+    const step = (currentTime: number) => {
+      if (startTime === null) startTime = currentTime;
+      const timeElapsed = currentTime - startTime;
+      const progress = Math.min(timeElapsed / duration, 1);
+
+      container.scrollTop = startY + distance * easeOutCubic(progress);
+
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      }
+    };
+
+    requestAnimationFrame(step);
+  };
+
+  // Click handlers for menu navigation
+  const navigateTo = (section: '01' | '02' | '03' | '04' | '05' | '06') => {
+    if (section === '01') {
+      scrollToPosition(0);
+    } else if (section === '02') {
+      scrollToPosition(0);
+    } else if (section === '03') {
+      scrollToPosition(offsets.about - 70);
+    } else if (section === '04') {
+      scrollToPosition(offsets.innovations - 70);
+    } else if (section === '05') {
+      scrollToPosition(offsets.gallery - 70);
+    } else if (section === '06') {
+      scrollToPosition(offsets.contact - 70);
+    }
+  };
+
+  // Scroll Progress Calculations
   const progress01 = Math.min(1, scrollY / (viewportHeight || 800));
 
-  // Section progress
-  const progress03 = Math.max(0, Math.min(1, (scrollY - 200) / 800));
-  const progress04 = Math.max(0, Math.min(1, (scrollY - 800) / 900));
-  const progress05 = Math.max(0, Math.min(1, (scrollY - 1500) / 900));
+  // 03 / Essence progress
+  const progress03 = Math.max(0, Math.min(1, (scrollY - offsets.about + viewportHeight) / (viewportHeight + heights.about)));
+  const leftColY = (progress03 - 0.5) * -120;
+  const rightColY = (progress03 - 0.5) * 120;
+
+  // 04 / Innovations progress - centered at progress04 === 0.5
+  const progress04 = Math.max(0, Math.min(1, (scrollY + viewportHeight / 2 - offsets.innovations) / heights.innovations));
+
+  // Staggered tilt rotation that becomes perfectly parallel (0deg) at exact mid-screen (progress04 === 0.5)
+  const card1Style = {
+    transform: `translateY(${(progress04 - 0.5) * -70}px) rotate(${(progress04 - 0.5) * 6}deg) scale(${hoveredSpecimen === 1 ? 1.02 : 1})`,
+  };
+  const card2Style = {
+    transform: `translateY(${(progress04 - 0.5) * -140}px) rotate(${(progress04 - 0.5) * -8}deg) scale(${hoveredSpecimen === 2 ? 1.02 : 1})`,
+  };
+  const card3Style = {
+    transform: `translateY(${(progress04 - 0.5) * -35}px) rotate(${(progress04 - 0.5) * 4}deg) scale(${hoveredSpecimen === 3 ? 1.02 : 1})`,
+  };
+
+  // 05 / Gallery Horizontal Scroll Progress
+  const galleryProgress = Math.max(0, Math.min(1, (scrollY - offsets.gallery) / (heights.gallery - (viewportHeight - 70))));
+  const maxTranslateWidth = Math.max(200, 1850 - windowWidth);
+  const horizontalTranslateX = -galleryProgress * maxTranslateWidth;
+
+  // 06 / Portal (Contact) converging gates - closes completely at the center of the screen
+  const progress06 = Math.max(0, Math.min(1, (scrollY + viewportHeight / 2 - offsets.contact) / heights.contact));
+  // The gate closes proportionally between 0.0 and 0.5, remaining fully closed at 0.5 and beyond
+  const convergeFactor = Math.max(0, 1 - (progress06 * 2.0));
+  const leftConvergeX = convergeFactor * -250;
+  const rightConvergeX = convergeFactor * 250;
 
   // Visual Morph Style Calculations for Hero Portal
   const gridLineOpacity = Math.max(0.05, 1 - progress01 * 2.5);
@@ -58,32 +179,10 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
   const splitScale = 1 - progress01 * 0.08;
   const splitTranslateY = progress01 * -50;
 
-  // --- MOTION CALCULATIONS FOR SECTIONS 03, 04, 05 ---
-
-  // Section 03: Dual-direction shear slide
-  const leftColY = (progress03 - 0.5) * -120; // left col moves upward
-  const rightColY = (progress03 - 0.5) * 120;  // right col moves downward
-
-  // Section 04: Lando Norris "Helmets" style layout transitions.
-  // Staggered translate + subtle rotations + scale on scroll
-  const card1Style = {
-    transform: `translateY(${(progress04 - 0.5) * -70}px) rotate(${-1 + progress04 * 2}deg) scale(${hoveredSpecimen === 1 ? 1.02 : 1})`,
-  };
-  const card2Style = {
-    transform: `translateY(${(progress04 - 0.5) * -140}px) rotate(${1.5 - progress04 * 3}deg) scale(${hoveredSpecimen === 2 ? 1.02 : 1})`,
-  };
-  const card3Style = {
-    transform: `translateY(${(progress04 - 0.5) * -35}px) rotate(${-0.5 + progress04 * 1}deg) scale(${hoveredSpecimen === 3 ? 1.02 : 1})`,
-  };
-
-  // Section 05: Clean converging split panels
-  const leftConvergeX = (1 - progress05) * -100;
-  const rightConvergeX = (1 - progress05) * 100;
-
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 z-50 bg-[#000000] text-[#e3e3e5] overflow-y-auto h-screen scroll-smooth font-sans select-none rounded-none"
+      className="fixed inset-0 z-50 bg-[#000000] text-[#e3e3e5] overflow-y-auto h-screen font-sans select-none rounded-none"
     >
 
       {/* BACKGROUND FLOATING GRIDLINES */}
@@ -96,7 +195,7 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
       </div>
 
       {/* ELEVATED EDITORIAL TOP-BAR */}
-      <div className="sticky top-0 left-0 right-0 z-40 bg-[#000000]/85 backdrop-blur-md border-b border-[#111112] py-6 px-8 flex justify-between items-center transition-all duration-300">
+      <div className="sticky top-0 left-0 right-0 z-40 bg-[#000000]/90 backdrop-blur-md border-b border-[#111112] py-6 px-8 flex justify-between items-center transition-all duration-300">
         <div className="flex flex-col">
           <span className="text-[8px] tracking-[0.6em] text-[#a39081] font-black uppercase mb-0.5">
             BESPOKE LUTHERIE STUDIO
@@ -105,15 +204,19 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
             LUXE LUTHIERS
           </h1>
         </div>
-        <div className="flex items-center gap-6 text-[8px] tracking-[0.3em] text-[#5a554f] font-bold uppercase">
-          <a href="#about" className="hover:text-[#a39081] transition-colors">03 / ESSENCE</a>
-          <a href="#gallery" className="hover:text-[#a39081] transition-colors">04 / SPECIMENS</a>
-          <a href="#contact" className="hover:text-[#a39081] transition-colors">05 / PORTAL</a>
+        <div className="flex items-center gap-4 md:gap-6 text-[8px] tracking-[0.3em] text-[#5a554f] font-bold uppercase">
+          <button onClick={() => navigateTo('01')} className="hover:text-[#a39081] transition-colors focus:outline-none">01 / ACOUSTIC</button>
+          <button onClick={() => navigateTo('02')} className="hover:text-[#a39081] transition-colors focus:outline-none">02 / ELECTRIC</button>
+          <button onClick={() => navigateTo('03')} className="hover:text-[#a39081] transition-colors focus:outline-none">03 / ESSENCE</button>
+          <button onClick={() => navigateTo('04')} className="hover:text-[#a39081] transition-colors focus:outline-none">04 / INNOVATIONS</button>
+          <button onClick={() => navigateTo('05')} className="hover:text-[#a39081] transition-colors focus:outline-none">05 / GALLERY</button>
+          <button onClick={() => navigateTo('06')} className="hover:text-[#a39081] transition-colors focus:outline-none">06 / PORTAL</button>
         </div>
       </div>
 
       {/* STAGE 1: MORPHING HERO PORTAL */}
       <div
+        ref={heroRef}
         className="relative w-full h-[calc(100vh-70px)] flex flex-col md:flex-row border-b border-[#1c1c1f] overflow-hidden"
         style={{
           transform: `translateY(${splitTranslateY}px) scale(${splitScale})`,
@@ -217,9 +320,32 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
 
       {/* STAGE 2: THE ABOUT SECTION (03 / THE PHILOSOPHY) - Stark High-Fashion Editorial statement */}
       <section
+        ref={aboutRef}
         id="about"
-        className="w-full bg-[#000000] border-b border-[#1c1c1f] py-40 px-6 md:px-20 relative overflow-hidden"
+        className="w-full bg-[#000000] border-b border-[#1c1c1f] py-48 px-6 md:px-20 relative overflow-hidden"
       >
+        {/* PERSONALITY SIGNATURE: Rotating concentric caliper compass */}
+        <div className="absolute top-[20%] right-[10%] w-[450px] h-[450px] pointer-events-none z-0 opacity-[0.06]">
+          <svg
+            className="w-full h-full stroke-[#a39081] fill-none"
+            viewBox="0 0 200 200"
+            style={{
+              transform: `rotate(${scrollY * 0.04}deg)`,
+              transition: 'transform 0.05s linear',
+            }}
+          >
+            <circle cx="100" cy="100" r="90" strokeDasharray="1, 4" strokeWidth="0.5" />
+            <circle cx="100" cy="100" r="75" strokeWidth="0.25" />
+            <circle cx="100" cy="100" r="50" strokeDasharray="4, 4" strokeWidth="0.5" />
+            <circle cx="100" cy="100" r="30" strokeWidth="0.25" />
+            <line x1="100" y1="0" x2="100" y2="200" strokeWidth="0.2" />
+            <line x1="0" y1="100" x2="200" y2="100" strokeWidth="0.2" />
+            {/* Compass degree markers */}
+            <text x="102" y="18" fill="#a39081" fontSize="5" className="font-mono tracking-widest">N 0.00°</text>
+            <text x="102" y="190" fill="#a39081" fontSize="5" className="font-mono tracking-widest">S 180.00°</text>
+          </svg>
+        </div>
+
         <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 relative z-10">
 
           {/* Left Column: Slides Upwards */}
@@ -257,16 +383,28 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
         </div>
       </section>
 
-      {/* STAGE 3: THE GALLERY (04 / SPECIMENS) - LANDO NORRIS "HELMETS" STYLE GALLERY */}
+      {/* STAGE 3: THE INNOVATIONS SECTION (04 / SPECIMENS) - LANDO NORRIS "HELMETS" STYLE GALLERY */}
       <section
+        ref={innovationsRef}
         id="gallery"
-        className="w-full bg-[#050506] border-b border-[#1c1c1f] py-40 px-6 md:px-20 relative overflow-hidden"
+        className="w-full bg-[#050506] border-b border-[#1c1c1f] py-48 px-6 md:px-20 relative overflow-hidden"
       >
+        {/* PERSONALITY SIGNATURE: Left-aligned technical frequency EDO ruler scale */}
+        <div className="absolute top-0 left-4 w-12 h-full pointer-events-none z-0 opacity-10 flex flex-col justify-between py-12 border-r border-dashed border-[#a39081]/30 text-[7px] font-mono tracking-widest text-[#a39081]">
+          <div>EDO SCALE 12</div>
+          <div>• 26.25" FANNED</div>
+          <div>• HZ 440.00</div>
+          <div>EDO SCALE 19</div>
+          <div>• 34.00" BASE</div>
+          <div>• HZ 55.00</div>
+          <div>EDO SCALE 31</div>
+        </div>
+
         <div className="max-w-6xl mx-auto space-y-16 relative z-10">
 
           <div className="flex flex-col gap-2">
             <span className="text-[10px] tracking-[0.6em] text-[#a39081] font-black uppercase">
-              04 / SPECIMENS
+              04 / INNOVATIONS
             </span>
             <h3 className="text-3xl md:text-4xl font-black tracking-[0.2em] text-[#e3e3e5] uppercase">
               BLUEPRINT REVELATIONS
@@ -411,11 +549,185 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
         </div>
       </section>
 
-      {/* STAGE 4: CONTACT & SOCIALS (05 / INQUIRIES) - CLEAN ULTRA-MINIMAL COMMUNICATIONS PORTAL */}
+      {/* NEW STAGE: THE GALLERY SECTION (05 / MASTERBUILT GALLERY) - HORIZONTAL SCROLL ON VERTICAL SCROLL */}
       <section
-        id="contact"
-        className="w-full bg-[#000000] py-40 px-6 md:px-20 relative overflow-hidden"
+        ref={galleryRef}
+        id="gallery"
+        className="w-full bg-[#000000] relative h-[220vh]"
       >
+        <div className="sticky top-[70px] h-[calc(100vh-70px)] w-full overflow-hidden flex flex-col justify-center">
+
+          {/* PERSONALITY SIGNATURE: Fine coordinate frames and crop marks at the top/bottom edges */}
+          <div className="absolute top-8 left-12 right-12 flex justify-between text-[8px] font-mono tracking-[0.2em] text-[#423f40] border-b border-[#111112] pb-2">
+            <span>[ FOCUS FIELD 05 ]</span>
+            <span>GRID SYSTEM: S-T3</span>
+            <span>+ CORNER MARKS ON</span>
+          </div>
+
+          <div className="max-w-7xl mx-auto w-full px-12 md:px-20 mb-8 flex flex-col gap-1">
+            <span className="text-[10px] tracking-[0.6em] text-[#a39081] font-black uppercase">
+              05 / GALLERY
+            </span>
+            <h3 className="text-2xl md:text-3xl font-black tracking-[0.2em] text-[#e3e3e5] uppercase">
+              MASTERBUILT SPECIMENS
+            </h3>
+          </div>
+
+          {/* Horizontal Track Wrapper */}
+          <div className="w-full relative overflow-hidden h-[420px] flex items-center">
+            <div
+              className="flex gap-8 px-12 md:px-20 absolute left-0 top-0 h-full items-center whitespace-nowrap transition-transform duration-75 ease-out"
+              style={{ transform: `translateX(${horizontalTranslateX}px)` }}
+            >
+
+              {/* Item 1 */}
+              <div className="w-[450px] h-[360px] border border-[#1c1c1f] p-8 bg-[#050506] flex flex-col justify-between shrink-0 relative overflow-hidden group">
+                {/* Crop-marks framing */}
+                <div className="absolute top-2 left-2 text-[7px] text-[#423f40] font-mono font-bold">+</div>
+                <div className="absolute top-2 right-2 text-[7px] text-[#423f40] font-mono font-bold">+</div>
+                <div className="absolute bottom-2 left-2 text-[7px] text-[#423f40] font-mono font-bold">+</div>
+                <div className="absolute bottom-2 right-2 text-[7px] text-[#423f40] font-mono font-bold">+</div>
+
+                <div className="flex justify-between items-center">
+                  <span className="text-[9px] font-mono text-[#a39081] tracking-widest">[ SPECIMEN M-01 ]</span>
+                  <span className="text-[8px] font-mono text-[#423f40]">45.439° N, 6.223° E</span>
+                </div>
+                <div className="my-auto flex justify-center py-4">
+                  <svg className="w-28 h-28 stroke-[#a39081]/40 group-hover:stroke-[#a39081] transition-colors duration-500 fill-none" viewBox="0 0 100 100" strokeWidth="1">
+                    {/* Abstract technical silhouette of guitar body */}
+                    <path d="M50,15 C30,15 20,30 20,55 C20,75 35,90 50,90 C65,90 80,75 80,55 C80,30 70,15 50,15 Z" />
+                    <circle cx="50" cy="55" r="10" strokeDasharray="2,2" />
+                    <line x1="50" y1="15" x2="50" y2="90" strokeDasharray="3,3" />
+                  </svg>
+                </div>
+                <div>
+                  <h4 className="text-xs font-black text-[#e3e3e5] tracking-[0.2em] uppercase mb-1">ANODIZED BLACK ACOUSTIC</h4>
+                  <p className="text-[8.5px] text-[#5a554f] font-bold tracking-widest uppercase">RAW MATTE RESIN / MULTISCALE 26.5"</p>
+                </div>
+              </div>
+
+              {/* Item 2 */}
+              <div className="w-[450px] h-[360px] border border-[#1c1c1f] p-8 bg-[#050506] flex flex-col justify-between shrink-0 relative overflow-hidden group">
+                <div className="absolute top-2 left-2 text-[7px] text-[#423f40] font-mono font-bold">+</div>
+                <div className="absolute top-2 right-2 text-[7px] text-[#423f40] font-mono font-bold">+</div>
+                <div className="absolute bottom-2 left-2 text-[7px] text-[#423f40] font-mono font-bold">+</div>
+                <div className="absolute bottom-2 right-2 text-[7px] text-[#423f40] font-mono font-bold">+</div>
+
+                <div className="flex justify-between items-center">
+                  <span className="text-[9px] font-mono text-[#a39081] tracking-widest">[ SPECIMEN M-02 ]</span>
+                  <span className="text-[8px] font-mono text-[#423f40]">GENÈVE LAB S-12</span>
+                </div>
+                <div className="my-auto flex justify-center py-4">
+                  <svg className="w-28 h-28 stroke-[#a39081]/40 group-hover:stroke-[#a39081] transition-colors duration-500 fill-none" viewBox="0 0 100 100" strokeWidth="1">
+                    <path d="M50,10 L30,50 L40,90 L60,90 L70,50 Z" />
+                    <line x1="50" y1="10" x2="50" y2="90" />
+                    <line x1="30" y1="50" x2="70" y2="50" strokeDasharray="4,4" />
+                  </svg>
+                </div>
+                <div>
+                  <h4 className="text-xs font-black text-[#e3e3e5] tracking-[0.2em] uppercase mb-1">BASALT RICHLITE SOLID</h4>
+                  <p className="text-[8.5px] text-[#5a554f] font-bold tracking-widest uppercase">STEALTH BRUTALIST LACQUER / DOUBLE HB</p>
+                </div>
+              </div>
+
+              {/* Item 3 */}
+              <div className="w-[450px] h-[360px] border border-[#1c1c1f] p-8 bg-[#050506] flex flex-col justify-between shrink-0 relative overflow-hidden group">
+                <div className="absolute top-2 left-2 text-[7px] text-[#423f40] font-mono font-bold">+</div>
+                <div className="absolute top-2 right-2 text-[7px] text-[#423f40] font-mono font-bold">+</div>
+                <div className="absolute bottom-2 left-2 text-[7px] text-[#423f40] font-mono font-bold">+</div>
+                <div className="absolute bottom-2 right-2 text-[7px] text-[#423f40] font-mono font-bold">+</div>
+
+                <div className="flex justify-between items-center">
+                  <span className="text-[9px] font-mono text-[#a39081] tracking-widest">[ SPECIMEN M-03 ]</span>
+                  <span className="text-[8px] font-mono text-[#423f40]">TUNING: DROP D</span>
+                </div>
+                <div className="my-auto flex justify-center py-4">
+                  <svg className="w-28 h-28 stroke-[#a39081]/40 group-hover:stroke-[#a39081] transition-colors duration-500 fill-none" viewBox="0 0 100 100" strokeWidth="1">
+                    <rect x="25" y="15" width="50" height="70" rx="10" />
+                    <line x1="25" y1="50" x2="75" y2="50" strokeDasharray="1,1" />
+                    <circle cx="50" cy="50" r="15" />
+                  </svg>
+                </div>
+                <div>
+                  <h4 className="text-xs font-black text-[#e3e3e5] tracking-[0.2em] uppercase mb-1">SERIES II BRONZE METRIC</h4>
+                  <p className="text-[8.5px] text-[#5a554f] font-bold tracking-widest uppercase">OXIDIZED CORE / ACTIVE PREAMP</p>
+                </div>
+              </div>
+
+              {/* Item 4 */}
+              <div className="w-[450px] h-[360px] border border-[#1c1c1f] p-8 bg-[#050506] flex flex-col justify-between shrink-0 relative overflow-hidden group">
+                <div className="absolute top-2 left-2 text-[7px] text-[#423f40] font-mono font-bold">+</div>
+                <div className="absolute top-2 right-2 text-[7px] text-[#423f40] font-mono font-bold">+</div>
+                <div className="absolute bottom-2 left-2 text-[7px] text-[#423f40] font-mono font-bold">+</div>
+                <div className="absolute bottom-2 right-2 text-[7px] text-[#423f40] font-mono font-bold">+</div>
+
+                <div className="flex justify-between items-center">
+                  <span className="text-[9px] font-mono text-[#a39081] tracking-widest">[ SPECIMEN M-04 ]</span>
+                  <span className="text-[8px] font-mono text-[#423f40]">CARBON MONOCOQUE</span>
+                </div>
+                <div className="my-auto flex justify-center py-4">
+                  <svg className="w-28 h-28 stroke-[#a39081]/40 group-hover:stroke-[#a39081] transition-colors duration-500 fill-none" viewBox="0 0 100 100" strokeWidth="1">
+                    <polygon points="50,15 80,45 65,85 35,85 20,45" />
+                    <circle cx="50" cy="50" r="25" strokeDasharray="2,5" />
+                  </svg>
+                </div>
+                <div>
+                  <h4 className="text-xs font-black text-[#e3e3e5] tracking-[0.2em] uppercase mb-1">CUSTOM SCALE CARBON BASS</h4>
+                  <p className="text-[8.5px] text-[#5a554f] font-bold tracking-widest uppercase">HIGH-TENSION CORE / 34" MONOCOQUE</p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div className="absolute bottom-8 left-12 right-12 flex justify-between text-[8px] font-mono tracking-[0.2em] text-[#423f40] border-t border-[#111112] pt-2">
+            <span>SCROLL PROGRESS: {Math.round(galleryProgress * 100)}%</span>
+            <span>SPECIFICATION CODES READY</span>
+            <span>[ SYSTEM ACTIVE ]</span>
+          </div>
+
+        </div>
+      </section>
+
+      {/* STAGE 5: CONTACT & SOCIALS (06 / PORTAL) - CLEAN ULTRA-MINIMAL COMMUNICATIONS PORTAL */}
+      <section
+        ref={contactRef}
+        id="contact"
+        className="w-full bg-[#000000] py-48 px-6 md:px-20 relative overflow-hidden"
+      >
+        {/* PERSONALITY SIGNATURE: Refined split sine wave that converges and aligns when the gates lock */}
+        <div className="absolute inset-0 pointer-events-none z-0 flex items-center justify-center opacity-[0.08]">
+          <div className="w-[800px] h-[100px] flex relative justify-between overflow-hidden">
+
+            {/* Left wave on left side */}
+            <div
+              className="w-[50%] h-full flex justify-end"
+              style={{
+                transform: `translateX(${leftConvergeX}px)`,
+                transition: 'transform 0.1s ease-out'
+              }}
+            >
+              <svg className="w-full h-full stroke-[#a39081] fill-none" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <path d="M 0 50 Q 25 10 50 50 T 100 50 Q 125 10 150 50" strokeWidth="0.5" />
+              </svg>
+            </div>
+
+            {/* Right wave on right side (offset to match and complete wave perfectly on converge) */}
+            <div
+              className="w-[50%] h-full flex justify-start"
+              style={{
+                transform: `translateX(${rightConvergeX}px)`,
+                transition: 'transform 0.1s ease-out'
+              }}
+            >
+              <svg className="w-full h-full stroke-[#a39081] fill-none" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <path d="M -100 50 Q -75 10 -50 50 T 0 50 Q 25 10 50 50 T 100 50" strokeWidth="0.5" />
+              </svg>
+            </div>
+
+          </div>
+        </div>
+
         <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-0 relative z-10 border border-[#1c1c1f]">
 
           {/* Left Panel: Converges from the left on scroll */}
@@ -428,7 +740,7 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
           >
             <div className="space-y-4">
               <span className="text-[9px] tracking-[0.5em] text-[#a39081] font-black uppercase block">
-                05 / THE PORTAL
+                06 / THE PORTAL
               </span>
               <h3 className="text-3xl font-black tracking-[0.2em] text-[#e3e3e5] uppercase leading-none">
                 CONTACT
