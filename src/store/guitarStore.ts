@@ -1,8 +1,16 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import LZString from 'lz-string';
-import type { GuitarConfig, BodyShape, BodyWood, NeckWood, FretboardWood, PickupsLayout, HardwareColor, PickguardStyle } from '../types/guitar';
-import { BASE_PRICE, BODY_SHAPES, BODY_WOODS, NECK_WOODS, FRETBOARD_WOODS, PICKUPS_LAYOUTS, HARDWARE_COLORS, PICKGUARD_STYLES, FINISH_PRESETS } from '../constants/catalog';
+import type {
+  GuitarConfig,
+  BodyShape,
+  BodyWood,
+  NeckWood,
+  PickupsLayout,
+  HardwareColor,
+  PickguardStyle,
+} from '../types/guitar';
+import { BASE_PRICE, BODY_SHAPES, BODY_WOODS, NECK_WOODS, PICKUPS_LAYOUTS, HARDWARE_COLORS, PICKGUARD_STYLES, FINISH_PRESETS } from '../constants/catalog';
 
 interface StateHistoryItem {
   config: GuitarConfig;
@@ -31,6 +39,7 @@ interface GuitarStore {
 }
 
 const DEFAULT_CONFIG: GuitarConfig = {
+  instrumentType: 'guitar',
   bodyShape: 'modern_st',
   bodyWood: 'alder',
   neckWood: 'roasted_maple',
@@ -39,6 +48,47 @@ const DEFAULT_CONFIG: GuitarConfig = {
   hardwareColor: 'chrome',
   pickguardStyle: 'three_ply_black',
   finishPreset: 'two_color_sunburst',
+
+  // Measurement system
+  measurementSystem: 'metric',
+
+  // Neck Profile default
+  neckProfile: 'teardrop',
+  relaxedHandMeasurement: 150, // 150mm default
+  customThicknessInput: '',
+  useCustomThickness: false,
+
+  // Richlite default material
+  fretboardMaterial: 'black_diamond',
+  modularFretboard: false,
+  radiusNut: '241', // 9.5" in mm equivalent
+  radiusLastFret: '406', // 16" in mm equivalent
+  edoValue: 12,
+  isFretless: false,
+  numberOfFrets: 24,
+  scalloped: false,
+  scallopedStartFret: 12,
+  fretboardInlay: 'dots',
+  extraFretboards: [],
+
+  // Multiscale scales
+  multiscaleEnabled: false,
+  bassScaleLength: 25.5,
+  trebleScaleLength: 25.0,
+
+  // Ergonomic positions
+  seatedPosition: 'standard',
+  neckAngle: 0,
+
+  // Hardware additions
+  bridgeType: 'fixed_hardtail',
+  tunerType: 'locking_standard',
+  knobType: 'knurled_dome',
+  nutType: 'graph_tech_tusq',
+
+  // Electronics additions
+  activePreamp: false,
+  toneCapacitor: 'orange_drop_022',
 };
 
 export const useGuitarStore = create<GuitarStore>()(
@@ -144,12 +194,14 @@ export const useGuitarStore = create<GuitarStore>()(
           if (decompressed) {
             const parsed = JSON.parse(decompressed) as Partial<GuitarConfig>;
 
-            // Validate keys to prevent injecting weird states
+            // Merge parsed configurations safely
             const validatedConfig: GuitarConfig = {
+              ...DEFAULT_CONFIG,
+              ...parsed,
+              instrumentType: (parsed.instrumentType === 'bass' || parsed.instrumentType === 'guitar') ? parsed.instrumentType : DEFAULT_CONFIG.instrumentType,
               bodyShape: (BODY_SHAPES[parsed.bodyShape as BodyShape] ? parsed.bodyShape : DEFAULT_CONFIG.bodyShape) as BodyShape,
               bodyWood: (BODY_WOODS[parsed.bodyWood as BodyWood] ? parsed.bodyWood : DEFAULT_CONFIG.bodyWood) as BodyWood,
               neckWood: (NECK_WOODS[parsed.neckWood as NeckWood] ? parsed.neckWood : DEFAULT_CONFIG.neckWood) as NeckWood,
-              fretboardWood: (FRETBOARD_WOODS[parsed.fretboardWood as FretboardWood] ? parsed.fretboardWood : DEFAULT_CONFIG.fretboardWood) as FretboardWood,
               pickupsLayout: (PICKUPS_LAYOUTS[parsed.pickupsLayout as PickupsLayout] ? parsed.pickupsLayout : DEFAULT_CONFIG.pickupsLayout) as PickupsLayout,
               hardwareColor: (HARDWARE_COLORS[parsed.hardwareColor as HardwareColor] ? parsed.hardwareColor : DEFAULT_CONFIG.hardwareColor) as HardwareColor,
               pickguardStyle: (PICKGUARD_STYLES[parsed.pickguardStyle as PickguardStyle] ? parsed.pickguardStyle : DEFAULT_CONFIG.pickguardStyle) as PickguardStyle,
@@ -174,7 +226,7 @@ export const useGuitarStore = create<GuitarStore>()(
       },
     }),
     {
-      name: 'luxe-guitar-configurator-store',
+      name: 'luxe-guitar-configurator-store-v3',
       partialize: (state) => ({
         config: state.config,
         savedBuilds: state.savedBuilds,
@@ -183,7 +235,7 @@ export const useGuitarStore = create<GuitarStore>()(
   )
 );
 
-// Price calculation helper hook or utility
+// Calculate Total Price based on premium modifications
 export function calculateTotalPrice(config: GuitarConfig): {
   total: number;
   base: number;
@@ -206,11 +258,6 @@ export function calculateTotalPrice(config: GuitarConfig): {
     breakdown.push({ category: 'Neck Wood', name: neck.name, price: neck.priceDelta });
   }
 
-  const fretboard = FRETBOARD_WOODS[config.fretboardWood];
-  if (fretboard && fretboard.priceDelta > 0) {
-    breakdown.push({ category: 'Fretboard Wood', name: fretboard.name, price: fretboard.priceDelta });
-  }
-
   const pickups = PICKUPS_LAYOUTS[config.pickupsLayout];
   if (pickups && pickups.priceDelta > 0) {
     breakdown.push({ category: 'Pickups Layout', name: pickups.name, price: pickups.priceDelta });
@@ -224,6 +271,43 @@ export function calculateTotalPrice(config: GuitarConfig): {
   const finish = FINISH_PRESETS.find(f => f.id === config.finishPreset);
   if (finish && finish.priceDelta > 0) {
     breakdown.push({ category: 'Finish Preset', name: finish.name, price: finish.priceDelta });
+  }
+
+  // Fretboard Richlite Premium Additions
+  if (config.fretboardMaterial !== 'black_diamond') {
+    breakdown.push({ category: 'Richlite Fretboard Upgrade', name: config.fretboardMaterial.toUpperCase().replace('_', ' '), price: 80 });
+  }
+
+  // Modular System addition
+  if (config.modularFretboard) {
+    breakdown.push({ category: 'Modular Fretboard System', name: 'Interchangeable Magnetic Pin Assembly', price: 250 });
+  }
+
+  // Extra Fretboards calculation ($150 each)
+  if (config.extraFretboards && config.extraFretboards.length > 0) {
+    breakdown.push({
+      category: 'Extra Modular Fretboards',
+      name: `${config.extraFretboards.length}x Secondary Richlite Blanks`,
+      price: config.extraFretboards.length * 150
+    });
+  }
+
+  // Carbon Joint Technology is base price included. Microtonal EDO / Scalloping
+  if (config.edoValue !== 12 || config.isFretless) {
+    const label = config.isFretless ? 'PURE FRETLESS' : `${config.edoValue}-EDO CUSTOM`;
+    breakdown.push({ category: 'Fretboard Format', name: label, price: 120 });
+  }
+
+  if (config.scalloped && !config.isFretless) {
+    breakdown.push({ category: 'Fretboard Scalloping', name: `Scalloped from fret ${config.scallopedStartFret}`, price: 180 });
+  }
+
+  if (config.activePreamp) {
+    breakdown.push({ category: 'Electronics Upgrade', name: 'Luxe Active Preamp', price: 95 });
+  }
+
+  if (config.multiscaleEnabled) {
+    breakdown.push({ category: 'Multiscale Fret Layout', name: 'Fanned Multiscale Upgrade', price: 150 });
   }
 
   const totalDeltas = breakdown.reduce((sum, item) => sum + item.price, 0);

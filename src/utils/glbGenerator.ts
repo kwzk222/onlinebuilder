@@ -5,9 +5,11 @@ import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js';
 // and exports it as a GLTF binary (GLB) file to download.
 // This is used as the developer utility script to generate the actual /models/guitar.glb file!
 
-export function buildGuitarMesh(shape: 'modern_st' | 'single_cut' | 'offset'): THREE.Group {
+export function buildGuitarMesh(shape: 'modern_st' | 'single_cut' | 'offset', instrumentType: 'guitar' | 'bass' = 'guitar'): THREE.Group {
   const group = new THREE.Group();
   group.name = 'electric_guitar_root';
+
+  const isBass = instrumentType === 'bass';
 
   // --- Body Geometry (Extruded Shape) ---
   const bodyShape = new THREE.Shape();
@@ -97,8 +99,8 @@ export function buildGuitarMesh(shape: 'modern_st' | 'single_cut' | 'offset'): T
   group.add(pgMesh);
 
   // --- Neck (extending upwards along Y-axis) ---
-  const neckLength = 2.4;
-  const neckWidth = 0.15;
+  const neckLength = isBass ? 3.3 : 2.4;
+  const neckWidth = isBass ? 0.12 : 0.15;
   const neckDepth = 0.08;
   const neckGeo = new THREE.BoxGeometry(neckWidth, neckLength, neckDepth);
   neckGeo.translate(0, neckLength / 2, 0); // align pivot to neck heel
@@ -122,10 +124,17 @@ export function buildGuitarMesh(shape: 'modern_st' | 'single_cut' | 'offset'): T
 
   // --- Headstock ---
   const headstockShape = new THREE.Shape();
-  headstockShape.moveTo(-0.08, 0);
-  headstockShape.lineTo(0.08, 0);
-  headstockShape.quadraticCurveTo(0.12, 0.2, 0.08, 0.45);
-  headstockShape.bezierCurveTo(0.04, 0.55, -0.12, 0.55, -0.08, 0.45);
+  if (isBass) {
+    headstockShape.moveTo(-0.06, 0);
+    headstockShape.lineTo(0.06, 0);
+    headstockShape.quadraticCurveTo(0.1, 0.2, 0.06, 0.6);
+    headstockShape.bezierCurveTo(0.02, 0.7, -0.1, 0.7, -0.06, 0.6);
+  } else {
+    headstockShape.moveTo(-0.08, 0);
+    headstockShape.lineTo(0.08, 0);
+    headstockShape.quadraticCurveTo(0.12, 0.2, 0.08, 0.45);
+    headstockShape.bezierCurveTo(0.04, 0.55, -0.12, 0.55, -0.08, 0.45);
+  }
   headstockShape.closePath();
 
   const hsGeo = new THREE.ExtrudeGeometry(headstockShape, {
@@ -143,8 +152,8 @@ export function buildGuitarMesh(shape: 'modern_st' | 'single_cut' | 'offset'): T
   group.add(hsMesh);
 
   // --- Hardware Parts ---
-  // Bridge (Chrome/Gold block)
-  const bridgeGeo = new THREE.BoxGeometry(0.24, 0.18, 0.04);
+  // Bridge (Chrome/Gold block) - Bass bridge is slightly larger/different
+  const bridgeGeo = isBass ? new THREE.BoxGeometry(0.26, 0.22, 0.04) : new THREE.BoxGeometry(0.24, 0.18, 0.04);
   const bridgeMesh = new THREE.Mesh(bridgeGeo);
   bridgeMesh.name = 'hardware_bridge';
   bridgeMesh.position.set(0, -0.4, 0.11);
@@ -182,7 +191,8 @@ export function buildGuitarMesh(shape: 'modern_st' | 'single_cut' | 'offset'): T
   const pickupGroup = new THREE.Group();
   pickupGroup.name = 'pickups_group';
 
-  const pickupGeo = new THREE.BoxGeometry(0.22, 0.07, 0.035);
+  // Bass pickups are longer bar-style pickups
+  const pickupGeo = isBass ? new THREE.BoxGeometry(0.24, 0.06, 0.035) : new THREE.BoxGeometry(0.22, 0.07, 0.035);
 
   const puBridge = new THREE.Mesh(pickupGeo);
   puBridge.name = 'pickup_bridge';
@@ -207,19 +217,21 @@ export function buildGuitarMesh(shape: 'modern_st' | 'single_cut' | 'offset'): T
   // Tuning pegs on headstock
   const pegGroup = new THREE.Group();
   pegGroup.name = 'hardware_pegs';
-  const pegPostGeo = new THREE.CylinderGeometry(0.008, 0.008, 0.06, 8);
-  const pegHeadGeo = new THREE.BoxGeometry(0.03, 0.015, 0.01);
+  const pegPostGeo = isBass ? new THREE.CylinderGeometry(0.012, 0.012, 0.06, 8) : new THREE.CylinderGeometry(0.008, 0.008, 0.06, 8);
+  const pegHeadGeo = isBass ? new THREE.BoxGeometry(0.045, 0.025, 0.015) : new THREE.BoxGeometry(0.03, 0.015, 0.01);
 
-  for (let i = 0; i < 6; i++) {
-    const side = i < 3 ? -1 : 1;
-    const yPos = 0.3 + neckLength + 0.1 + (i % 3) * 0.12;
+  const pegsCount = isBass ? 4 : 6;
+  for (let i = 0; i < pegsCount; i++) {
+    const side = isBass ? (i < 2 ? -1 : 1) : (i < 3 ? -1 : 1);
+    const step = isBass ? (i % 2) : (i % 3);
+    const yPos = 0.3 + neckLength + 0.15 + step * (isBass ? 0.2 : 0.12);
 
     const post = new THREE.Mesh(pegPostGeo);
-    post.position.set(side * 0.08, yPos, 0.04);
+    post.position.set(side * (isBass ? 0.07 : 0.08), yPos, 0.04);
     post.rotation.x = Math.PI / 2;
 
     const head = new THREE.Mesh(pegHeadGeo);
-    head.position.set(side * 0.12, yPos, 0.07);
+    head.position.set(side * (isBass ? 0.13 : 0.12), yPos, 0.07);
 
     pegGroup.add(post);
     pegGroup.add(head);
@@ -230,8 +242,8 @@ export function buildGuitarMesh(shape: 'modern_st' | 'single_cut' | 'offset'): T
 }
 
 // Exports the procedural group as a downloadable GLB file.
-export function exportGuitarToGLB(shape: 'modern_st' | 'single_cut' | 'offset') {
-  const model = buildGuitarMesh(shape);
+export function exportGuitarToGLB(shape: 'modern_st' | 'single_cut' | 'offset', instrumentType: 'guitar' | 'bass' = 'guitar') {
+  const model = buildGuitarMesh(shape, instrumentType);
   const exporter = new GLTFExporter();
 
   exporter.parse(
@@ -242,7 +254,7 @@ export function exportGuitarToGLB(shape: 'modern_st' | 'single_cut' | 'offset') 
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `guitar_${shape}.glb`;
+      link.download = `${instrumentType}_${shape}.glb`;
       link.click();
       URL.revokeObjectURL(url);
     },

@@ -45,10 +45,10 @@ export const ReactGuitarModel: React.FC = () => {
     return PICKGUARD_STYLES[config.pickguardStyle];
   }, [config.pickguardStyle]);
 
-  // 3. Procedural geometries based on selected body shape
+  // 3. Procedural geometries based on selected body shape and instrument type
   const guitarGroup = useMemo(() => {
-    return buildGuitarMesh(config.bodyShape);
-  }, [config.bodyShape]);
+    return buildGuitarMesh(config.bodyShape, config.instrumentType);
+  }, [config.bodyShape, config.instrumentType]);
 
   // 4. Extract parts from our semantic model to apply reactive materials in React.
   // We'll map materials carefully to standard meshes: body, neck, fretboard, headstock, pickguard, pickups, hardware, tuning pegs.

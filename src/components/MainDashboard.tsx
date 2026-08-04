@@ -3,473 +3,340 @@ import { useGuitarStore, calculateTotalPrice } from '../store/guitarStore';
 import { Guitar3DScene } from './Guitar3DScene';
 import { OptionsControlPanel } from './OptionsControlPanel';
 import { PriceCounter } from './PriceCounter';
-import { exportGuitarToGLB } from '../utils/glbGenerator';
-import {
-  Undo2,
-  Redo2,
-  Share2,
-  Download,
-  FileText,
-  Save,
-  Trash2,
-  Sparkles,
-  RotateCcw,
-  Check,
-  Guitar
-} from 'lucide-react';
-import jsPDF from 'jspdf';
 import confetti from 'canvas-confetti';
+import { Save, FolderOpen, Trash2 } from 'lucide-react';
 
-export const MainDashboard: React.FC = () => {
+interface MainDashboardProps {
+  onReturnToStartup?: () => void;
+}
+
+export const MainDashboard: React.FC<MainDashboardProps> = ({ onReturnToStartup }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const {
     config,
-    undo,
-    redo,
-    resetConfig,
-    historyIndex,
-    history,
+    loadFromShareCode,
     savedBuilds,
     saveBuild,
     loadBuild,
     deleteBuild,
-    getShareUrl,
-    loadFromShareCode,
   } = useGuitarStore();
 
-  const [slotInput, setSlotInput] = useState('');
-  const [copied, setCopied] = useState(false);
-  const [activeTab, setActiveTab] = useState<'build' | 'saved'>('build');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [specialInstructions, setSpecialInstructions] = useState('');
 
-  // Load configuration from share parameter 'b' if it exists in URL on mount
+  // States for the save/load model overlay inside the 3D Canvas
+  const [showSaveLoadModal, setShowSaveLoadModal] = useState(false);
+  const [newBuildName, setNewBuildName] = useState('');
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const bCode = params.get('b');
     if (bCode) {
       const success = loadFromShareCode(bCode);
       if (success) {
-        // Clean URL to avoid infinite reloading state
         window.history.replaceState({}, document.title, window.location.pathname);
         confetti({
-          particleCount: 150,
-          spread: 80,
-          origin: { y: 0.6 },
-          colors: ['#d4af37', '#ffffff', '#1a1a1a']
+          particleCount: 50,
+          spread: 40,
+          colors: ['#a39081', '#ffffff']
         });
       }
     }
   }, [loadFromShareCode]);
 
-  // Pricing calculations
   const { total, base, breakdown } = calculateTotalPrice(config);
 
-  // Undo/Redo availability checks
-  const canUndo = historyIndex > 0;
-  const canRedo = historyIndex < history.length - 1;
-
-  // Actions
-  const handleShare = () => {
-    const shareUrl = getShareUrl();
-    navigator.clipboard.writeText(shareUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handleExportImage = () => {
-    if (canvasRef.current) {
-      const dataUrl = canvasRef.current.toDataURL('image/png');
-      const link = document.createElement('a');
-      link.download = `custom-guitar-spec-${Date.now()}.png`;
-      link.href = dataUrl;
-      link.click();
+  const handleBuy = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim() || !email.trim()) {
+      alert('Please provide your name and email address to proceed.');
+      return;
     }
-  };
 
-  const handleExportPDF = () => {
-    const doc = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4',
+    // Calculations for biometric estimation
+    const estThickness = Math.max(16, Math.min(26, config.relaxedHandMeasurement * (config.measurementSystem === 'metric' ? 0.15 : 0.15 * 25.4)));
+    const thicknessMetricStr = `${estThickness.toFixed(1)} mm`;
+    const thicknessImperialStr = `${(estThickness / 25.4).toFixed(2)} in`;
+
+    const finalThicknessStr = config.useCustomThickness ? config.customThicknessInput : (config.measurementSystem === 'metric' ? thicknessMetricStr : thicknessImperialStr);
+
+    const orderDetails = `==========================================================
+BESPOKE CUSTOM SHOP SPECIFICATIONS & ORDER DETAILS
+==========================================================
+CLIENT PROFILE:
+- Name: ${name.trim()}
+- Email: ${email.trim()}
+
+INSTRUMENT MODEL:
+- Type: ${config.instrumentType === 'bass' ? 'ACOUSTIC' : 'ELECTRIC'}
+- Body Shape: ${config.bodyShape.toUpperCase()}
+
+NECK SPECIFICATIONS (BOLT-THROUGH CARBON FIBER):
+- Profile: ${config.neckProfile.toUpperCase()}
+- Calculated Neck Thickness: ${finalThicknessStr}
+- Base Shaft Wood: ${config.neckWood.toUpperCase().replace('_', ' ')}
+
+FRETBOARD MATRIX (RICHLITE):
+- Richlite Material: ${config.fretboardMaterial.toUpperCase().replace('_', ' ')}
+- Compound Radius: Nut (${config.radiusNut}) -> Last Fret (${config.radiusLastFret})
+- Tuning Mode: ${config.isFretless ? 'PURE FRETLESS' : `${config.edoValue}-EDO`}
+- Number of Frets: ${config.isFretless ? 'FRETLESS (NONE)' : config.numberOfFrets}
+- Scalloped: ${config.scalloped && !config.isFretless ? `YES (From Fret ${config.scallopedStartFret})` : 'NO'}
+- Inlay Style: ${config.fretboardInlay.toUpperCase()}
+- Modular Swap System: ${config.modularFretboard ? 'YES (Interchangeable magnetic pin assembly)' : 'NO'}
+
+${config.extraFretboards.length > 0 ? `MODULAR ACCESSORY BOARDS:\n${config.extraFretboards.map((b, i) => `--- EXTRA BOARD #0${i+1} ---\n  - Material: ${b.material.toUpperCase().replace('_', ' ')}\n  - Tuning Mode: ${b.isFretless ? 'PURE FRETLESS' : `${b.edoValue}-EDO`}\n  - Inlay: ${b.inlay.toUpperCase()}\n  - Frets length: ${b.isFretless ? 'FRETLESS' : b.numberOfFrets}\n`).join('\n')}` : ''}
+CORE MATERIALS & LACQUERS:
+- Body Wood: ${config.bodyWood.toUpperCase()}
+- Lacquer Finish: ${config.finishPreset.toUpperCase().replace(/_/g, ' ')}
+
+ERGONOMIC SPECIFICATIONS:
+- Intended Seated Posture: ${config.seatedPosition.toUpperCase().replace(/_/g, ' ')}
+- Target Attack Neck Angle: ${config.neckAngle}°
+
+HARDWARE & PLATING ANCHORAGE:
+- Bridge: ${config.bridgeType.toUpperCase().replace(/_/g, ' ')}
+- Tuners: ${config.tunerType.toUpperCase().replace(/_/g, ' ')}
+- Knob Type: ${config.knobType.toUpperCase().replace(/_/g, ' ')}
+- Nut: ${config.nutType.toUpperCase().replace(/_/g, ' ')}
+- Metallic Plating: ${config.hardwareColor.toUpperCase().replace('_', ' ')}
+- Pickguard / Cover: ${config.pickguardStyle.toUpperCase().replace(/_/g, ' ')}
+
+ELECTRONICS & ANALOG FILTERS:
+- Electromagnetic Layout: ${config.pickupsLayout.toUpperCase()}
+- Active Preamplifier (18V): ${config.activePreamp ? 'YES' : 'NO'}
+- Tone Capacitor: ${config.toneCapacitor.toUpperCase().replace(/_/g, ' ')}
+
+SPECIAL INSTRUCTIONS / DESIGN NOTES:
+${specialInstructions.trim() ? specialInstructions.trim() : 'None provided.'}
+
+==========================================================
+FINANCIAL VALUATION:
+- Base Price: $${base.toLocaleString()}.00 USD
+${breakdown.map(item => `- ${item.category} (${item.name}): +$${item.price}.00 USD`).join('\n')}
+----------------------------------------------------------
+TOTAL PRICE: $${total.toLocaleString()}.00 USD
+==========================================================`;
+
+    const blob = new Blob([orderDetails], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Luxe_Luthiers_Order_${config.instrumentType === 'bass' ? 'Acoustic' : 'Electric'}_${Date.now()}.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
+
+    confetti({
+      particleCount: 100,
+      spread: 60,
+      colors: ['#a39081', '#ffffff']
     });
-
-    // Premium minimal PDF layout
-    doc.setFillColor(15, 15, 17); // Dark solid background top band
-    doc.rect(0, 0, 210, 45, 'F');
-
-    // Title / Brand
-    doc.setTextColor(212, 175, 55); // Premium Gold
-    doc.setFont('Helvetica', 'bold');
-    doc.setFontSize(22);
-    doc.text('LUXE LUTHIERS', 15, 18);
-
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(10);
-    doc.setFont('Helvetica', 'normal');
-    doc.text('CUSTOM SHOP SPECIFICATION SHEET', 15, 25);
-    doc.text(`DATE: ${new Date().toLocaleDateString()}`, 15, 30);
-
-    // Price top-right
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(16);
-    doc.setFont('Helvetica', 'bold');
-    doc.text(`$${total.toLocaleString()}.00`, 195, 22, { align: 'right' });
-
-    // Spec body
-    doc.setFillColor(248, 248, 248);
-    doc.rect(10, 50, 190, 235, 'F');
-
-    doc.setFontSize(12);
-    doc.setTextColor(20, 20, 20);
-    doc.text('YOUR BESPOKE CONFIGURATION', 15, 62);
-
-    // Add list of specs
-    doc.setFont('Helvetica', 'normal');
-    doc.setFontSize(10);
-    doc.setTextColor(60, 60, 60);
-
-    const specs = [
-      { key: 'Base Instrument', val: `Bespoke Electric Guitar (Base Price $${base.toLocaleString()})` },
-      { key: 'Body Silhouette', val: config.bodyShape.toUpperCase().replace('_', ' ') },
-      { key: 'Body Core Wood', val: config.bodyWood.toUpperCase() },
-      { key: 'Lacquer Finish', val: config.finishPreset.toUpperCase().replace(/_/g, ' ') },
-      { key: 'Neck Profile', val: config.neckWood.toUpperCase().replace('_', ' ') },
-      { key: 'Fretboard Wood', val: config.fretboardWood.toUpperCase() },
-      { key: 'Pickups Layout', val: config.pickupsLayout.toUpperCase() },
-      { key: 'Hardware Plating', val: config.hardwareColor.toUpperCase().replace('_', ' ') },
-      { key: 'Pickguard Style', val: config.pickguardStyle.toUpperCase().replace(/_/g, ' ') },
-    ];
-
-    let startY = 72;
-    specs.forEach((s) => {
-      doc.setFont('Helvetica', 'bold');
-      doc.text(`${s.key}:`, 15, startY);
-      doc.setFont('Helvetica', 'normal');
-      doc.text(s.val, 60, startY);
-      doc.setDrawColor(220, 220, 220);
-      doc.line(15, startY + 2, 195, startY + 2);
-      startY += 8;
-    });
-
-    // Detailed breakdown pricing
-    doc.setFont('Helvetica', 'bold');
-    doc.setFontSize(11);
-    doc.setTextColor(20, 20, 20);
-    doc.text('ADDITIONAL SELECTIONS & DELTAS', 15, startY + 5);
-
-    startY += 12;
-    if (breakdown.length === 0) {
-      doc.setFont('Helvetica', 'normal');
-      doc.setFontSize(10);
-      doc.setTextColor(120, 120, 120);
-      doc.text('None (Standard Options Configured)', 15, startY);
-      startY += 10;
-    } else {
-      breakdown.forEach((item) => {
-        doc.setFont('Helvetica', 'normal');
-        doc.setFontSize(10);
-        doc.setTextColor(80, 80, 80);
-        doc.text(`${item.category} (${item.name})`, 15, startY);
-        doc.text(`+$${item.price}.00`, 195, startY, { align: 'right' });
-        startY += 6;
-      });
-    }
-
-    doc.setDrawColor(212, 175, 55);
-    doc.setLineWidth(0.5);
-    doc.line(15, startY + 2, 195, startY + 2);
-    startY += 10;
-
-    // Total Price Summary
-    doc.setFont('Helvetica', 'bold');
-    doc.setFontSize(13);
-    doc.setTextColor(20, 20, 20);
-    doc.text('TOTAL PRICE:', 15, startY);
-    doc.text(`$${total.toLocaleString()}.00 USD`, 195, startY, { align: 'right' });
-
-    // Footer statement
-    doc.setFont('Helvetica', 'italic');
-    doc.setFontSize(8);
-    doc.setTextColor(120, 120, 120);
-    doc.text('Luxe Luthiers premium hand-crafted custom series. Each instrument is custom built to order in our local studio.', 15, 280);
-
-    // Try to draw canvas screenshot thumbnail if available
-    try {
-      if (canvasRef.current) {
-        const dataUrl = canvasRef.current.toDataURL('image/png');
-        // Add image to spec sheet
-        doc.addImage(dataUrl, 'PNG', 115, 62, 75, 75);
-      }
-    } catch (e) {
-      console.warn("Could not add 3D canvas thumb to PDF spec.", e);
-    }
-
-    doc.save(`Luxe-Guitar-Spec-${config.bodyShape}-${Date.now()}.pdf`);
   };
 
   const handleSaveBuild = (e: React.FormEvent) => {
     e.preventDefault();
-    if (slotInput.trim()) {
-      saveBuild(slotInput.trim());
-      setSlotInput('');
-      confetti({
-        particleCount: 50,
-        spread: 40,
-        colors: ['#10b981', '#ffffff']
-      });
-    }
-  };
-
-  const handleDownloadGLB = () => {
-    exportGuitarToGLB(config.bodyShape);
+    if (!newBuildName.trim()) return;
+    saveBuild(newBuildName.trim());
+    setNewBuildName('');
+    confetti({
+      particleCount: 20,
+      spread: 30,
+      colors: ['#a39081']
+    });
   };
 
   return (
-    <div className="min-h-screen bg-[#050507] text-neutral-100 flex flex-col font-sans selection:bg-neutral-800 selection:text-neutral-100">
+    <div className="min-h-screen bg-[#0c0c0d] text-[#e3e3e5] flex flex-col font-sans selection:bg-[#a39081]/20 selection:text-[#e3e3e5] rounded-none">
 
-      {/* HEADER SECTION */}
-      <header className="border-b border-neutral-900 bg-neutral-950/40 backdrop-blur-md px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 sticky top-0 z-40">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-neutral-900/80 border border-neutral-800 flex items-center justify-center text-amber-500">
-            <Guitar className="w-5 h-5" />
-          </div>
-          <div>
-            <h1 className="text-base font-extrabold tracking-widest text-neutral-100 font-mono">LUXE LUTHIERS</h1>
-            <p className="text-[10px] text-neutral-500 font-medium tracking-wider uppercase">Bespoke 3D Guitar Configurator</p>
-          </div>
+      {/* HEADER SECTION - Raw, brutalist borders with Logo Back-Button */}
+      <header className="border-b border-[#1a1a1c] bg-[#0c0c0d] px-6 py-4 flex flex-row items-center justify-between rounded-none">
+        <div className="flex items-center gap-4 rounded-none">
+          {onReturnToStartup ? (
+            <button
+              onClick={onReturnToStartup}
+              title="Return to home portal"
+              className="group text-left focus:outline-none rounded-none cursor-pointer"
+            >
+              <h1 className="text-base font-black tracking-[0.4em] text-[#e3e3e5] group-hover:text-[#a39081] transition-colors uppercase">
+                LUXE LUTHIERS <span className="text-[10px] text-[#5a554f] group-hover:text-[#a39081] font-bold tracking-normal ml-2">← BACK</span>
+              </h1>
+              <p className="text-[9px] text-[#5a554f] font-bold tracking-[0.2em] uppercase mt-0.5">
+                BESPOKE {config.instrumentType === 'bass' ? 'ACOUSTIC' : 'ELECTRIC'} STUDIO
+              </p>
+            </button>
+          ) : (
+            <div className="rounded-none">
+              <h1 className="text-base font-black tracking-[0.4em] text-[#e3e3e5] uppercase">LUXE LUTHIERS</h1>
+              <p className="text-[9px] text-[#5a554f] font-bold tracking-[0.2em] uppercase mt-0.5">
+                BESPOKE {config.instrumentType === 'bass' ? 'ACOUSTIC' : 'ELECTRIC'} STUDIO
+              </p>
+            </div>
+          )}
         </div>
 
-        {/* Global Action buttons */}
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            onClick={undo}
-            disabled={!canUndo}
-            title="Undo (Ctrl+Z)"
-            className="p-2.5 rounded-xl border border-neutral-900 bg-neutral-900/30 text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/30 disabled:opacity-30 disabled:pointer-events-none transition-all"
-          >
-            <Undo2 className="w-4 h-4" />
-          </button>
-          <button
-            onClick={redo}
-            disabled={!canRedo}
-            title="Redo (Ctrl+Y)"
-            className="p-2.5 rounded-xl border border-neutral-900 bg-neutral-900/30 text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/30 disabled:opacity-30 disabled:pointer-events-none transition-all"
-          >
-            <Redo2 className="w-4 h-4" />
-          </button>
-
-          <div className="w-[1px] h-6 bg-neutral-800/60 mx-1" />
-
-          <button
-            onClick={resetConfig}
-            title="Reset to default build"
-            className="flex items-center gap-2 px-3 py-2.5 text-xs font-semibold rounded-xl border border-neutral-900 bg-neutral-900/30 text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/30 transition-all"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Reset</span>
-          </button>
-
-          <button
-            onClick={handleShare}
-            className={`flex items-center gap-2 px-4.5 py-2.5 text-xs font-bold rounded-xl border transition-all ${
-              copied
-                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-                : 'bg-neutral-900/50 border-neutral-800 text-neutral-300 hover:border-neutral-700 hover:bg-neutral-800/50'
-            }`}
-          >
-            {copied ? <Check className="w-3.5 h-3.5" /> : <Share2 className="w-3.5 h-3.5" />}
-            <span>{copied ? 'Copied Link' : 'Share URL'}</span>
-          </button>
+        {/* Sticky Always-Visible Valuation in Top Bar */}
+        <div className="flex items-center gap-3">
+          <span className="text-[9px] tracking-[0.3em] text-[#5a554f] font-bold uppercase hidden sm:inline-block">ESTIMATED VALUATION</span>
+          <div className="border border-[#1a1a1c] px-3 py-1.5 bg-[#000000] rounded-none">
+            <PriceCounter value={total} />
+          </div>
         </div>
       </header>
 
-      {/* MAIN SINGLE-PAGE APP BODY */}
-      <main className="flex-1 max-w-[1600px] w-full mx-auto p-4 sm:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch">
+      {/* MAIN VIEWPORT - EXACT 50/50 SPLIT WITHOUT ROUNDED CORNERS */}
+      <main className="flex-1 grid grid-cols-1 md:grid-cols-2 rounded-none">
 
-        {/* LEFT COLUMN: THE CINEMATIC 3D SCREEN (Lg span 7) */}
-        <section className="lg:col-span-7 xl:col-span-8 flex flex-col gap-4">
+        {/* LEFT COLUMN: THE CINEMATIC 3D SCREEN - NO OVERLAYS EXCEPT TOP-LEFT SAVE/LOAD UTILITY */}
+        <section className="relative border-b md:border-b-0 md:border-r border-[#1a1a1c] h-[50vh] md:h-auto min-h-[350px] rounded-none bg-[#050506]">
 
-          {/* Main viewport */}
-          <div className="flex-1 min-h-[450px] lg:min-h-0 h-full relative">
-            <Guitar3DScene canvasRef={canvasRef} />
-          </div>
-
-          {/* Sub-viewport actions bar (Export PNG, PDF, developer GLB utility) */}
-          <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-neutral-950/30 border border-neutral-900 rounded-2xl">
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                onClick={handleExportImage}
-                className="flex items-center gap-2 px-4 py-2.5 text-xs font-bold rounded-xl bg-neutral-900 border border-neutral-800 hover:border-neutral-700 hover:bg-neutral-800 text-neutral-200 transition-all"
-              >
-                <Download className="w-3.5 h-3.5 text-neutral-400" />
-                Capture Image
-              </button>
-
-              <button
-                onClick={handleExportPDF}
-                className="flex items-center gap-2 px-4 py-2.5 text-xs font-bold rounded-xl bg-neutral-900 border border-neutral-800 hover:border-neutral-700 hover:bg-neutral-800 text-neutral-200 transition-all"
-              >
-                <FileText className="w-3.5 h-3.5 text-neutral-400" />
-                Export Spec PDF
-              </button>
-            </div>
-
-            <div className="group/dev relative">
-              <button
-                onClick={handleDownloadGLB}
-                className="flex items-center gap-2 px-4 py-2.5 text-xs font-bold rounded-xl bg-amber-500/5 border border-amber-500/20 hover:bg-amber-500/10 text-amber-400 transition-all"
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                Dev: Export GLB
-              </button>
-              <div className="absolute right-0 bottom-full mb-2 w-56 hidden group-hover/dev:block bg-neutral-950 border border-neutral-800 text-[10px] text-neutral-400 p-2.5 rounded-lg shadow-2xl z-40">
-                Exports the current customized setup as an optimized binary .glb file. Use this to save customized versions to `/public/models`.
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* RIGHT COLUMN: INTERACTIVE PRICE & CATEGORIES PANELS (Lg span 5) */}
-        <section className="lg:col-span-5 xl:col-span-4 flex flex-col gap-5">
-
-          {/* Price & Cost Breakdown Panel */}
-          <div className="relative overflow-hidden bg-radial from-neutral-900 to-[#0e0e11] border border-neutral-800/80 p-5 rounded-3xl shadow-xl flex flex-col gap-4">
-
-            {/* Gloss Highlight overlay */}
-            <div className="absolute -top-12 -left-12 w-48 h-48 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
-
-            <div className="flex items-center justify-between z-10">
-              <span className="text-xs font-mono font-bold tracking-widest text-neutral-400 uppercase">ESTIMATED PRICE</span>
-              <div className="group/cost relative flex items-center gap-1 cursor-pointer">
-                <span className="text-[10px] text-amber-500 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full font-bold">
-                  VIEW COST SPLIT
-                </span>
-
-                {/* Cost split breakdown tooltip on hover */}
-                <div className="absolute right-0 top-full mt-2.5 w-72 hidden group-hover/cost:block bg-neutral-950 border border-neutral-800/80 p-4 rounded-2xl shadow-2xl z-30 transition-all">
-                  <span className="block text-[10px] font-mono tracking-widest text-neutral-400 font-bold mb-2 uppercase">COST BREAKDOWN</span>
-                  <div className="space-y-1.5 text-xs text-neutral-400">
-                    <div className="flex justify-between font-mono">
-                      <span>Base Luthier Instrument</span>
-                      <span>${base.toLocaleString()}.00</span>
-                    </div>
-                    {breakdown.map((item, idx) => (
-                      <div key={idx} className="flex justify-between font-mono border-t border-neutral-900 pt-1.5">
-                        <span className="text-[11px] opacity-70">{item.category} ({item.name.split(' (')[0]})</span>
-                        <span>+${item.price}.00</span>
-                      </div>
-                    ))}
-                    <div className="flex justify-between font-bold text-neutral-100 border-t border-neutral-800 pt-2 font-mono">
-                      <span>Total</span>
-                      <span>${total.toLocaleString()}.00</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-baseline gap-1 z-10">
-              <PriceCounter value={total} />
-              <span className="text-[10px] font-mono text-neutral-500 font-bold uppercase">USD</span>
-            </div>
-          </div>
-
-          {/* Collapsible Panel Tabs */}
-          <div className="flex items-stretch border-b border-neutral-900">
+          {/* Top-Left Save/Load Widgets directly on model canvas */}
+          <div className="absolute top-4 left-4 z-20 flex gap-2 rounded-none">
             <button
-              onClick={() => setActiveTab('build')}
-              className={`flex-1 py-3 text-center text-xs font-bold tracking-wider uppercase transition-all border-b-2 ${
-                activeTab === 'build'
-                  ? 'border-neutral-200 text-neutral-100'
-                  : 'border-transparent text-neutral-500 hover:text-neutral-300'
-              }`}
+              onClick={() => setShowSaveLoadModal(!showSaveLoadModal)}
+              className="px-3 py-1.5 bg-[#000000]/80 backdrop-blur-md border border-[#1c1c1f] hover:border-[#a39081] hover:text-[#e3e3e5] text-[#8a857e] text-[8px] tracking-[0.25em] uppercase font-black flex items-center gap-1.5 transition-all rounded-none"
             >
-              Configure Specifications
-            </button>
-            <button
-              onClick={() => setActiveTab('saved')}
-              className={`flex-1 py-3 text-center text-xs font-bold tracking-wider uppercase transition-all border-b-2 ${
-                activeTab === 'saved'
-                  ? 'border-neutral-200 text-neutral-100'
-                  : 'border-transparent text-neutral-500 hover:text-neutral-300'
-              }`}
-            >
-              Saved Builds ({Object.keys(savedBuilds).length})
+              <FolderOpen className="w-3 h-3 text-[#a39081]" />
+              <span>ARCHIVES / SLOTS ({Object.keys(savedBuilds).length})</span>
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto max-h-[500px] lg:max-h-[calc(100vh-320px)] pr-1">
-            {activeTab === 'build' ? (
-              <OptionsControlPanel />
-            ) : (
-              <div className="space-y-4">
-                {/* Save Current Build Form */}
-                <form onSubmit={handleSaveBuild} className="p-4 bg-neutral-900/30 border border-neutral-800/60 rounded-2xl flex flex-col gap-3">
-                  <span className="block text-[10px] font-mono font-bold tracking-wider text-neutral-400 uppercase">Save current build slot</span>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      placeholder="e.g. My Flamed ST"
-                      value={slotInput}
-                      onChange={(e) => setSlotInput(e.target.value)}
-                      maxLength={24}
-                      className="flex-1 bg-neutral-950 border border-neutral-800 rounded-xl px-3 py-2 text-xs text-neutral-200 focus:outline-none focus:border-neutral-500"
-                    />
-                    <button
-                      type="submit"
-                      disabled={!slotInput.trim()}
-                      className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-neutral-100 hover:bg-neutral-200 text-neutral-950 disabled:opacity-45 disabled:pointer-events-none rounded-xl transition-all"
-                    >
-                      <Save className="w-3.5 h-3.5" />
-                      Save
-                    </button>
-                  </div>
-                </form>
+          {/* Quick Save/Load overlay widget */}
+          {showSaveLoadModal && (
+            <div className="absolute top-14 left-4 w-72 bg-[#000000]/95 backdrop-blur-lg border border-[#1c1c1f] p-4 z-30 rounded-none shadow-2xl flex flex-col gap-4 animate-fade-in text-[#e3e3e5]">
+              <div className="flex justify-between items-center border-b border-[#1c1c1f] pb-2">
+                <span className="text-[9px] font-black tracking-widest text-[#a39081] uppercase">SPECIFICATION ARCHIVES</span>
+                <button
+                  onClick={() => setShowSaveLoadModal(false)}
+                  className="text-[9px] font-mono text-[#5a554f] hover:text-[#e3e3e5] cursor-pointer"
+                >
+                  [CLOSE]
+                </button>
+              </div>
 
-                {/* List saved slots */}
+              {/* Save Form */}
+              <form onSubmit={handleSaveBuild} className="flex gap-1.5">
+                <input
+                  type="text"
+                  required
+                  placeholder="SLOT NAME..."
+                  value={newBuildName}
+                  onChange={(e) => setNewBuildName(e.target.value)}
+                  className="flex-1 bg-[#0c0c0d] border border-[#1a1a1c] px-2 py-1 text-[8.5px] font-mono uppercase tracking-widest text-[#e3e3e5] focus:outline-none focus:border-[#a39081] rounded-none"
+                />
+                <button
+                  type="submit"
+                  className="px-3 bg-[#e3e3e5] hover:bg-[#ffffff] text-[#000000] font-black text-[8px] tracking-widest uppercase flex items-center justify-center rounded-none"
+                >
+                  <Save className="w-2.5 h-2.5" />
+                </button>
+              </form>
+
+              {/* Slot Registry */}
+              <div className="flex flex-col gap-1.5 max-h-48 overflow-y-auto">
                 {Object.keys(savedBuilds).length === 0 ? (
-                  <div className="text-center py-12 text-neutral-500 text-xs">
-                    No custom builds saved yet. Create a beautiful build and save it to your local browser!
+                  <div className="text-[8px] text-[#5a554f] font-mono uppercase tracking-wider py-4 text-center">
+                    [ NO ACTIVE BLUEPRINTS SAVED ]
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 gap-2.5">
-                    {Object.entries(savedBuilds).map(([slotName, savedConfig]) => {
-                      const savedPrice = calculateTotalPrice(savedConfig).total;
-                      const isCurrent = JSON.stringify(config) === JSON.stringify(savedConfig);
-
-                      return (
-                        <div
-                          key={slotName}
-                          className={`p-4 rounded-2xl border flex items-center justify-between gap-3 bg-neutral-900/10 transition-all ${
-                            isCurrent ? 'border-neutral-200/40 bg-neutral-800/10' : 'border-neutral-800/60'
-                          }`}
-                        >
-                          <div>
-                            <span className="block text-xs font-bold text-neutral-200 truncate max-w-[150px]">{slotName}</span>
-                            <span className="block text-[10px] font-mono text-neutral-400 mt-0.5">${savedPrice.toLocaleString()}.00</span>
-                          </div>
-
-                          <div className="flex items-center gap-1.5">
-                            <button
-                              onClick={() => loadBuild(slotName)}
-                              className="px-3 py-1.5 text-[11px] font-bold border border-neutral-800 hover:border-neutral-600 bg-neutral-900/60 hover:bg-neutral-800 text-neutral-300 rounded-lg transition-all"
-                            >
-                              Load
-                            </button>
-                            <button
-                              onClick={() => deleteBuild(slotName)}
-                              className="p-1.5 text-neutral-500 hover:text-red-400 border border-transparent hover:border-neutral-800 rounded-lg transition-all"
-                              title="Delete build slot"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
+                  Object.keys(savedBuilds).map((slot) => (
+                    <div key={slot} className="flex justify-between items-center bg-[#0c0c0d] p-2 border border-[#111112]">
+                      <button
+                        onClick={() => {
+                          loadBuild(slot);
+                          confetti({
+                            particleCount: 15,
+                            spread: 20,
+                            colors: ['#a39081']
+                          });
+                        }}
+                        className="text-left font-mono text-[8px] text-[#8a857e] hover:text-[#e3e3e5] tracking-widest uppercase flex-1 truncate cursor-pointer"
+                      >
+                        {slot} ({savedBuilds[slot].instrumentType.toUpperCase()})
+                      </button>
+                      <button
+                        onClick={() => deleteBuild(slot)}
+                        className="text-[#5a554f] hover:text-red-500 p-0.5"
+                        title="Delete slot"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))
                 )}
               </div>
-            )}
+            </div>
+          )}
+
+          <Guitar3DScene canvasRef={canvasRef} />
+        </section>
+
+        {/* RIGHT COLUMN: SCROLLABLE OPTIONS AND MINIMALIST BUY FORM */}
+        <section className="flex flex-col h-auto md:h-[calc(100vh-73px)] overflow-y-auto bg-[#0c0c0d] rounded-none">
+
+          <div className="p-6 space-y-6 flex-1 rounded-none">
+            <OptionsControlPanel />
+
+            {/* ORDER INITIATION FORM */}
+            <form onSubmit={handleBuy} className="border-t border-[#1a1a1c] pt-8 space-y-5 rounded-none">
+              <div className="rounded-none">
+                <h3 className="text-[10px] tracking-[0.3em] text-[#a39081] font-bold uppercase mb-2">
+                  CLIENT ARCHIVE
+                </h3>
+                <p className="text-[10px] leading-relaxed text-[#5a554f] uppercase tracking-wider font-bold">
+                  Provide your profile to compile full bespoke build blueprints and financial specifications.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-none">
+                <div className="rounded-none">
+                  <label className="block text-[9px] text-[#5a554f] tracking-[0.25em] uppercase font-bold mb-1.5">
+                    FIRST AND LAST NAME
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder=""
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full bg-[#121213] border border-[#1a1a1c] rounded-none px-3 py-2 text-[10px] uppercase tracking-wider font-bold text-[#e3e3e5] focus:outline-none focus:border-[#a39081]"
+                  />
+                </div>
+                <div className="rounded-none">
+                  <label className="block text-[9px] text-[#5a554f] tracking-[0.25em] uppercase font-bold mb-1.5">
+                    EMAIL ADDRESS
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    placeholder=""
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full bg-[#121213] border border-[#1a1a1c] rounded-none px-3 py-2 text-[10px] uppercase tracking-wider font-bold text-[#e3e3e5] focus:outline-none focus:border-[#a39081]"
+                  />
+                </div>
+              </div>
+
+              <div className="rounded-none">
+                <label className="block text-[9px] text-[#5a554f] tracking-[0.25em] uppercase font-bold mb-1.5">
+                  SPECIAL INSTRUCTIONS & DESIGN NOTES
+                </label>
+                <textarea
+                  rows={4}
+                  placeholder=""
+                  value={specialInstructions}
+                  onChange={(e) => setSpecialInstructions(e.target.value)}
+                  className="w-full bg-[#121213] border border-[#1a1a1c] rounded-none p-3 text-[10px] uppercase tracking-wider font-bold text-[#e3e3e5] focus:outline-none focus:border-[#a39081] resize-none"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full bg-[#e3e3e5] hover:bg-[#ffffff] text-[#000000] font-sans font-black tracking-[0.3em] text-[10px] py-4 rounded-none transition-all hover:tracking-[0.35em] uppercase"
+              >
+                COMPLETE ORDER
+              </button>
+            </form>
           </div>
         </section>
       </main>
