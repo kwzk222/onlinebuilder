@@ -30,8 +30,8 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
   const [heights, setHeights] = useState({
     about: 800,
     innovations: 900,
-    gallery: 1800, // slightly larger to support horizontal padding
-    contact: 600,  // decreased vertical padding
+    gallery: 2000, // expanded scroll height to provide robust vertical scroll padding
+    contact: 500,  // sleek and tight vertical padding
   });
 
   // Hover states for Specimens
@@ -53,8 +53,8 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
       setHeights({
         about: aboutRef.current?.offsetHeight ?? 800,
         innovations: innovationsRef.current?.offsetHeight ?? 900,
-        gallery: galleryRef.current?.offsetHeight ?? 1800,
-        contact: contactRef.current?.offsetHeight ?? 600,
+        gallery: galleryRef.current?.offsetHeight ?? 2000,
+        contact: contactRef.current?.offsetHeight ?? 500,
       });
     }
   };
@@ -89,33 +89,39 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
     };
   }, []);
 
-  // Programmatic smooth scrolling with a custom, ultra-responsive ease-out animation
+  // Programmatic smooth scrolling with an exquisite, satisfying decelerating ease-out animation
+  const activeScrollAnim = useRef<number | null>(null);
   const scrollToPosition = (targetY: number) => {
     const container = containerRef.current;
     if (!container) return;
 
+    if (activeScrollAnim.current) {
+      cancelAnimationFrame(activeScrollAnim.current);
+    }
+
     const startY = container.scrollTop;
     const distance = targetY - startY;
-    const duration = 500; // Fast 500ms transition
+    const duration = 900; // 900ms - perfect length to clearly feel the luxurious decelerating glide
     let startTime: number | null = null;
 
-    // Sweet, professional custom cubic-bezier ease-out (cubic-bezier(0.25, 1, 0.5, 1))
-    // We can formulate an equivalent easing function:
-    const easeOutQuart = (t: number) => 1 - Math.pow(1 - t, 4);
+    // Premium decelerating quintic ease-out curve (feels incredibly smooth)
+    const easeOutQuint = (t: number) => 1 - Math.pow(1 - t, 5);
 
     const step = (currentTime: number) => {
       if (startTime === null) startTime = currentTime;
       const timeElapsed = currentTime - startTime;
       const progress = Math.min(timeElapsed / duration, 1);
 
-      container.scrollTop = startY + distance * easeOutQuart(progress);
+      container.scrollTop = startY + distance * easeOutQuint(progress);
 
       if (progress < 1) {
-        requestAnimationFrame(step);
+        activeScrollAnim.current = requestAnimationFrame(step);
+      } else {
+        activeScrollAnim.current = null;
       }
     };
 
-    requestAnimationFrame(step);
+    activeScrollAnim.current = requestAnimationFrame(step);
   };
 
   // Click handlers for menu navigation
@@ -143,38 +149,40 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
   const leftColY = (progress03 - 0.5) * -120;
   const rightColY = (progress03 - 0.5) * 120;
 
-  // 04 / Innovations progress - centered at progress04 === 0.5
-  // We align progress04 such that it reaches exactly 0.5 when the innovations block is aligned in the viewport.
-  const progress04Raw = (scrollY + (viewportHeight / 2) - offsets.innovations) / heights.innovations;
-  const progress04 = Math.max(0, Math.min(1, progress04Raw));
+  // 04 / Innovations progress - Align rotations to be mathematically 0deg at exactly the 16th tick (1600px)
+  // Each mousewheel tick is typically 100px, making the 16th tick correspond exactly to scrollY = 1600.
+  const rotationOffset = scrollY - 1600;
+  const card1Rotation = rotationOffset * 0.015;  // 0deg at scrollY = 1600
+  const card2Rotation = rotationOffset * -0.02;  // 0deg at scrollY = 1600
+  const card3Rotation = rotationOffset * 0.01;   // 0deg at scrollY = 1600
 
-  // Staggered tilt rotation that becomes mathematically parallel (0deg) at exact mid-screen (progress04 === 0.5)
   const card1Style = {
-    transform: `translateY(${(progress04 - 0.5) * -70}px) rotate(${(progress04 - 0.5) * 12}deg) scale(${hoveredSpecimen === 1 ? 1.02 : 1})`,
+    transform: `translateY(${(progress03 - 0.5) * -40}px) rotate(${card1Rotation}deg) scale(${hoveredSpecimen === 1 ? 1.02 : 1})`,
   };
   const card2Style = {
-    transform: `translateY(${(progress04 - 0.5) * -140}px) rotate(${(progress04 - 0.5) * -16}deg) scale(${hoveredSpecimen === 2 ? 1.02 : 1})`,
+    transform: `translateY(${(progress03 - 0.5) * -80}px) rotate(${card2Rotation}deg) scale(${hoveredSpecimen === 2 ? 1.02 : 1})`,
   };
   const card3Style = {
-    transform: `translateY(${(progress04 - 0.5) * -35}px) rotate(${(progress04 - 0.5) * 8}deg) scale(${hoveredSpecimen === 3 ? 1.02 : 1})`,
+    transform: `translateY(${(progress03 - 0.5) * -20}px) rotate(${card3Rotation}deg) scale(${hoveredSpecimen === 3 ? 1.02 : 1})`,
   };
 
   // 05 / Gallery Horizontal Scroll Progress
   const galleryProgress = Math.max(0, Math.min(1, (scrollY - offsets.gallery) / (heights.gallery - (viewportHeight - 70))));
 
   // To allow padding after the last image, we multiply the scroll factor such that translation ends before galleryProgress reaches 1.0.
-  // We cap the horizontal translation at 100% of maxTranslateWidth when scroll reaches 80% progress, giving 20% scroll padding.
-  const translationFactor = Math.min(1.0, galleryProgress / 0.82);
-  const maxTranslateWidth = Math.max(200, 1950 - windowWidth);
+  // We cap the horizontal translation at 100% of maxTranslateWidth when scroll reaches 60% progress, giving 40% scroll padding.
+  const translationFactor = Math.min(1.0, galleryProgress / 0.60);
+  const maxTranslateWidth = Math.max(200, 2850 - windowWidth);
   const horizontalTranslateX = -translationFactor * maxTranslateWidth;
 
   // 06 / Portal (Contact) converging gates - closes completely at the center of the screen
   // And it MUST stay closed when scrolled all the way down.
-  const progress06Raw = (scrollY + (viewportHeight / 2) - offsets.contact) / heights.contact;
-  const progress06 = Math.max(0, Math.min(1, progress06Raw));
+  const contactEntryY = offsets.contact - viewportHeight;
+  const contactScrollRange = (containerRef.current?.scrollHeight || 5000) - viewportHeight - contactEntryY;
+  const contactProgress = contactScrollRange > 0 ? Math.max(0, Math.min(1, (scrollY - contactEntryY) / contactScrollRange)) : 0;
 
-  // The gate closes proportionally between 0.0 and 0.5, and is clamped to 0 from 0.5 to 1.0 so that it stays shut
-  const convergeFactor = progress06 < 0.5 ? (1.0 - (progress06 * 2.0)) : 0.0;
+  // The gates close rapidly as soon as Section 06 enters view, reaching 100% closed (convergeFactor = 0) at 35% of the entry scroll
+  const convergeFactor = Math.max(0, 1.0 - (contactProgress / 0.35));
   const leftConvergeX = convergeFactor * -250;
   const rightConvergeX = convergeFactor * 250;
 
@@ -215,12 +223,12 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
           </h1>
         </div>
         <div className="flex items-center gap-4 md:gap-6 text-[8px] tracking-[0.3em] text-[#5a554f] font-bold uppercase">
-          <button onClick={() => navigateTo('01')} className="hover:text-[#a39081] transition-colors focus:outline-none">01 / ACOUSTIC</button>
-          <button onClick={() => navigateTo('02')} className="hover:text-[#a39081] transition-colors focus:outline-none">02 / ELECTRIC</button>
-          <button onClick={() => navigateTo('03')} className="hover:text-[#a39081] transition-colors focus:outline-none">03 / ESSENCE</button>
-          <button onClick={() => navigateTo('04')} className="hover:text-[#a39081] transition-colors focus:outline-none">04 / INNOVATIONS</button>
-          <button onClick={() => navigateTo('05')} className="hover:text-[#a39081] transition-colors focus:outline-none">05 / GALLERY</button>
-          <button onClick={() => navigateTo('06')} className="hover:text-[#a39081] transition-colors focus:outline-none">06 / PORTAL</button>
+          <button onClick={() => navigateTo('01')} className="hover:text-[#a39081] transition-colors focus:outline-none cursor-pointer">01 / ACOUSTIC</button>
+          <button onClick={() => navigateTo('02')} className="hover:text-[#a39081] transition-colors focus:outline-none cursor-pointer">02 / ELECTRIC</button>
+          <button onClick={() => navigateTo('03')} className="hover:text-[#a39081] transition-colors focus:outline-none cursor-pointer">03 / ESSENCE</button>
+          <button onClick={() => navigateTo('04')} className="hover:text-[#a39081] transition-colors focus:outline-none cursor-pointer">04 / INNOVATIONS</button>
+          <button onClick={() => navigateTo('05')} className="hover:text-[#a39081] transition-colors focus:outline-none cursor-pointer">05 / GALLERY</button>
+          <button onClick={() => navigateTo('06')} className="hover:text-[#a39081] transition-colors focus:outline-none cursor-pointer">06 / PORTAL</button>
         </div>
       </div>
 
@@ -237,7 +245,7 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
         {/* SECTOR 01: ACOUSTIC PORTAL */}
         <button
           onClick={() => onSelect('bass')}
-          className="group relative flex-1 flex flex-col justify-end p-8 md:p-16 text-left border-b md:border-b-0 md:border-r border-[#1c1c1f] focus:outline-none transition-all duration-700 hover:bg-[#060607]/80 bg-transparent rounded-none z-20 overflow-hidden"
+          className="group relative flex-1 flex flex-col justify-end p-8 md:p-16 text-left border-b md:border-b-0 md:border-r border-[#1c1c1f] focus:outline-none transition-all duration-700 hover:bg-[#060607]/80 bg-transparent rounded-none z-20 overflow-hidden cursor-pointer"
         >
           {/* Drifting large number background */}
           <div
@@ -283,7 +291,7 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
         {/* SECTOR 02: ELECTRIC PORTAL */}
         <button
           onClick={() => onSelect('guitar')}
-          className="group relative flex-1 flex flex-col justify-end p-8 md:p-16 text-left focus:outline-none transition-all duration-700 hover:bg-[#060607]/80 bg-transparent rounded-none z-20 overflow-hidden"
+          className="group relative flex-1 flex flex-col justify-end p-8 md:p-16 text-left focus:outline-none transition-all duration-700 hover:bg-[#060607]/80 bg-transparent rounded-none z-20 overflow-hidden cursor-pointer"
         >
           {/* Drifting large number background */}
           <div
@@ -334,21 +342,22 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
         id="about"
         className="w-full bg-[#000000] border-b border-[#1c1c1f] py-48 px-6 md:px-20 relative overflow-hidden"
       >
-        {/* PERSONALITY SIGNATURE: Stark, sophisticated intersecting brutalist gear loops background */}
-        <div className="absolute inset-0 pointer-events-none z-0 opacity-[0.05] flex items-center justify-center">
+        {/* PERSONALITY SIGNATURE: Premium abstract multi-layer lens & geometry blueprint background */}
+        <div className="absolute inset-0 pointer-events-none z-0 opacity-[0.06] flex items-center justify-center">
           <svg
-            className="w-[600px] h-[600px] stroke-[#a39081] fill-none"
+            className="w-[800px] h-[800px] stroke-[#a39081] fill-none"
             viewBox="0 0 200 200"
             style={{
-              transform: `rotate(${scrollY * -0.06}deg)`,
+              transform: `rotate(${scrollY * -0.04}deg)`,
               transition: 'transform 0.05s linear',
             }}
           >
-            <polygon points="100,20 170,90 100,160 30,90" strokeWidth="0.5" strokeDasharray="3,3" />
-            <circle cx="100" cy="90" r="60" strokeWidth="0.25" />
-            <circle cx="100" cy="90" r="45" strokeWidth="0.5" />
-            <line x1="100" y1="20" x2="100" y2="160" strokeWidth="0.2" />
-            <line x1="30" y1="90" x2="170" y2="90" strokeWidth="0.2" />
+            <circle cx="100" cy="100" r="85" strokeWidth="0.5" strokeDasharray="2,4" />
+            <circle cx="100" cy="100" r="70" strokeWidth="0.2" />
+            <circle cx="100" cy="100" r="55" strokeWidth="0.5" />
+            <polygon points="100,5 195,100 100,195 5,100" strokeWidth="0.3" />
+            <line x1="100" y1="0" x2="100" y2="200" strokeWidth="0.2" />
+            <line x1="0" y1="100" x2="200" y2="100" strokeWidth="0.2" />
           </svg>
         </div>
 
@@ -395,11 +404,11 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
         id="gallery"
         className="w-full bg-[#050506] border-b border-[#1c1c1f] py-48 px-6 md:px-20 relative overflow-hidden"
       >
-        {/* PERSONALITY SIGNATURE: Premium minimal technical architectural blueprint grid background overlay */}
+        {/* PERSONALITY SIGNATURE: Technical design coordinate wireframe grid (no cringe text) */}
         <div className="absolute inset-0 pointer-events-none z-0 opacity-[0.04]">
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#a39081_1px,transparent_1px),linear-gradient(to_bottom,#a39081_1px,transparent_1px)] bg-[size:40px_40px]" />
-          <div className="absolute top-[20%] left-[5%] w-[90%] h-[1px] bg-[#a39081]" />
-          <div className="absolute top-[80%] left-[5%] w-[90%] h-[1px] bg-[#a39081]" />
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#a39081_1px,transparent_1px),linear-gradient(to_bottom,#a39081_1px,transparent_1px)] bg-[size:50px_50px]" />
+          <div className="absolute top-[30%] left-[10%] w-[80%] h-[1px] bg-[#a39081]" />
+          <div className="absolute top-[70%] left-[10%] w-[80%] h-[1px] bg-[#a39081]" />
         </div>
 
         <div className="max-w-6xl mx-auto space-y-16 relative z-10">
@@ -555,14 +564,14 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
       <section
         ref={galleryRef}
         id="gallery"
-        className="w-full bg-[#000000] relative h-[240vh]"
+        className="w-full bg-[#000000] relative h-[250vh]"
       >
         <div className="sticky top-[70px] h-[calc(100vh-70px)] w-full overflow-hidden flex flex-col justify-center">
 
           {/* PERSONALITY SIGNATURE: Fine coordinate frames and crop marks at the top/bottom edges */}
           <div className="absolute top-8 left-12 right-12 flex justify-between text-[8px] font-mono tracking-[0.2em] text-[#423f40] border-b border-[#111112] pb-2">
             <span>[ STAGE field 05 ]</span>
-            <span>GRID FRAME ALPHA</span>
+            <span>GALLERY COMPOSITION</span>
           </div>
 
           <div className="max-w-7xl mx-auto w-full px-12 md:px-20 mb-8 flex flex-col gap-1">
@@ -673,11 +682,57 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
                 </div>
               </div>
 
+              {/* Item 5 - New image/wireframe for gallery richness */}
+              <div className="w-[450px] h-[360px] border border-[#1c1c1f] p-8 bg-[#050506] flex flex-col justify-between shrink-0 relative overflow-hidden group">
+                <div className="absolute top-2 left-2 text-[7px] text-[#423f40] font-mono font-bold">+</div>
+                <div className="absolute top-2 right-2 text-[7px] text-[#423f40] font-mono font-bold">+</div>
+                <div className="absolute bottom-2 left-2 text-[7px] text-[#423f40] font-mono font-bold">+</div>
+                <div className="absolute bottom-2 right-2 text-[7px] text-[#423f40] font-mono font-bold">+</div>
+
+                <div className="flex justify-between items-center">
+                  <span className="text-[9px] font-mono text-[#a39081] tracking-widest">[ SPECIMEN M-05 ]</span>
+                </div>
+                <div className="my-auto flex justify-center py-4">
+                  <svg className="w-28 h-28 stroke-[#a39081]/40 group-hover:stroke-[#a39081] transition-colors duration-500 fill-none" viewBox="0 0 100 100" strokeWidth="1">
+                    <path d="M20,15 L80,15 L80,85 L20,85 Z" strokeDasharray="4,4" />
+                    <path d="M30,25 L70,25 L70,75 L30,75 Z" />
+                    <line x1="50" y1="5" x2="50" y2="95" />
+                  </svg>
+                </div>
+                <div>
+                  <h4 className="text-xs font-black text-[#e3e3e5] tracking-[0.2em] uppercase mb-1">RECTILINEAR STUDIO MODEL</h4>
+                  <p className="text-[8.5px] text-[#5a554f] font-bold tracking-widest uppercase">MINERAL TEXTURED FINISH / HARDTAIL</p>
+                </div>
+              </div>
+
+              {/* Item 6 - New image/wireframe for gallery richness */}
+              <div className="w-[450px] h-[360px] border border-[#1c1c1f] p-8 bg-[#050506] flex flex-col justify-between shrink-0 relative overflow-hidden group">
+                <div className="absolute top-2 left-2 text-[7px] text-[#423f40] font-mono font-bold">+</div>
+                <div className="absolute top-2 right-2 text-[7px] text-[#423f40] font-mono font-bold">+</div>
+                <div className="absolute bottom-2 left-2 text-[7px] text-[#423f40] font-mono font-bold">+</div>
+                <div className="absolute bottom-2 right-2 text-[7px] text-[#423f40] font-mono font-bold">+</div>
+
+                <div className="flex justify-between items-center">
+                  <span className="text-[9px] font-mono text-[#a39081] tracking-widest">[ SPECIMEN M-06 ]</span>
+                </div>
+                <div className="my-auto flex justify-center py-4">
+                  <svg className="w-28 h-28 stroke-[#a39081]/40 group-hover:stroke-[#a39081] transition-colors duration-500 fill-none" viewBox="0 0 100 100" strokeWidth="1">
+                    <ellipse cx="50" cy="50" rx="40" ry="25" />
+                    <ellipse cx="50" cy="50" rx="25" ry="15" strokeDasharray="3,3" />
+                    <line x1="10" y1="50" x2="90" y2="50" />
+                  </svg>
+                </div>
+                <div>
+                  <h4 className="text-xs font-black text-[#e3e3e5] tracking-[0.2em] uppercase mb-1">ELLIPTICAL HOLLOW BODY</h4>
+                  <p className="text-[8.5px] text-[#5a554f] font-bold tracking-widest uppercase">BASALT PAPER MATRIX / ARCHED SOUNDBOARD</p>
+                </div>
+              </div>
+
             </div>
           </div>
 
           <div className="absolute bottom-8 left-12 right-12 flex justify-between text-[8px] font-mono tracking-[0.2em] text-[#423f40] border-t border-[#111112] pt-2">
-            <span>READY SPECIFICATION CODES</span>
+            <span>SCROLL PROGRESS: {Math.round(galleryProgress * 100)}%</span>
           </div>
 
         </div>
@@ -687,7 +742,7 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
       <section
         ref={contactRef}
         id="contact"
-        className="w-full bg-[#000000] py-24 px-6 md:px-20 relative overflow-hidden"
+        className="w-full bg-[#000000] py-16 px-6 md:px-20 relative overflow-hidden border-t border-[#111112]"
       >
         {/* PERSONALITY SIGNATURE: Refined split sine wave that converges and aligns when the gates lock */}
         <div className="absolute inset-0 pointer-events-none z-0 flex items-center justify-center opacity-[0.08]">
@@ -726,7 +781,7 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
 
           {/* Left Panel: Converges from the left on scroll */}
           <div
-            className="p-12 md:p-20 bg-[#040405] border-b md:border-b-0 md:border-r border-[#1c1c1f] flex flex-col justify-between space-y-12 animate-none"
+            className="p-12 md:p-16 bg-[#040405] border-b md:border-b-0 md:border-r border-[#1c1c1f] flex flex-col justify-between space-y-12 animate-none"
             style={{
               transform: `translateX(${leftConvergeX}px)`,
               transition: 'transform 0.1s ease-out'
@@ -742,13 +797,13 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
             </div>
 
             <p className="text-xs leading-relaxed text-[#5a554f] uppercase tracking-widest font-black max-w-xs">
-              COMMISSIONS ARE EXCLUSIVELY ROUTED VIA SECURE CORRESPONDENCE CHANNELS LISTED OPPOSITE.
+              COMMISSIONS ARE EXCLUSIVELY ROUTED VIA SECURE CORRESPONDENCE CHANNELS.
             </p>
           </div>
 
           {/* Right Panel: Converges from the right on scroll */}
           <div
-            className="p-12 md:p-20 bg-[#08080a] flex flex-col justify-between space-y-12"
+            className="p-12 md:p-16 bg-[#08080a] flex flex-col justify-between space-y-12"
             style={{
               transform: `translateX(${rightConvergeX}px)`,
               transition: 'transform 0.1s ease-out'
