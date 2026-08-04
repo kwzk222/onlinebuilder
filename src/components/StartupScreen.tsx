@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowRight, Mail, HardDrive, Cpu, ShieldAlert, Key, Globe, Radio } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 interface StartupScreenProps {
   onSelect: (type: 'guitar' | 'bass') => void;
@@ -10,7 +10,7 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [viewportHeight, setViewportHeight] = useState(800);
 
-  // Hover states for Specimens
+  // Hover states for Specimens (mimicking the Lando Norris helmet selection)
   const [hoveredSpecimen, setHoveredSpecimen] = useState<number | null>(null);
 
   useEffect(() => {
@@ -39,16 +39,12 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
     };
   }, []);
 
-  // Calculate scroll progress for dynamic entry animations
+  // Calculate scroll progress for entry animations
   const progress01 = Math.min(1, scrollY / (viewportHeight || 800));
 
-  // Section 03 progress
+  // Section progress
   const progress03 = Math.max(0, Math.min(1, (scrollY - 200) / 800));
-
-  // Section 04 progress
   const progress04 = Math.max(0, Math.min(1, (scrollY - 800) / 900));
-
-  // Section 05 progress
   const progress05 = Math.max(0, Math.min(1, (scrollY - 1500) / 900));
 
   // Visual Morph Style Calculations for Hero Portal
@@ -68,20 +64,21 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
   const leftColY = (progress03 - 0.5) * -120; // left col moves upward
   const rightColY = (progress03 - 0.5) * 120;  // right col moves downward
 
-  // Section 04: Staggered translation + custom 3D rotation on scroll
+  // Section 04: Lando Norris "Helmets" style layout transitions.
+  // Staggered translate + subtle rotations + scale on scroll
   const card1Style = {
-    transform: `translateY(${(progress04 - 0.5) * -90}px) rotate(${-1.5 + progress04 * 3}deg)`,
+    transform: `translateY(${(progress04 - 0.5) * -70}px) rotate(${-1 + progress04 * 2}deg) scale(${hoveredSpecimen === 1 ? 1.02 : 1})`,
   };
   const card2Style = {
-    transform: `translateY(${(progress04 - 0.5) * -180}px) rotate(${2 - progress04 * 4}deg)`,
+    transform: `translateY(${(progress04 - 0.5) * -140}px) rotate(${1.5 - progress04 * 3}deg) scale(${hoveredSpecimen === 2 ? 1.02 : 1})`,
   };
   const card3Style = {
-    transform: `translateY(${(progress04 - 0.5) * -45}px) rotate(${-0.5 + progress04 * 1}deg)`,
+    transform: `translateY(${(progress04 - 0.5) * -35}px) rotate(${-0.5 + progress04 * 1}deg) scale(${hoveredSpecimen === 3 ? 1.02 : 1})`,
   };
 
-  // Section 05: Converging split panels
-  const leftConvergeX = (1 - progress05) * -120;
-  const rightConvergeX = (1 - progress05) * 120;
+  // Section 05: Clean converging split panels
+  const leftConvergeX = (1 - progress05) * -100;
+  const rightConvergeX = (1 - progress05) * 100;
 
   return (
     <div
@@ -218,19 +215,11 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
 
       </div>
 
-      {/* STAGE 2: THE ABOUT SECTION (03 / THE PHILOSOPHY) - DUAL DIRECTION PARALLAX SHEAR + TECH EMBELLISHMENTS */}
+      {/* STAGE 2: THE ABOUT SECTION (03 / THE PHILOSOPHY) - Stark High-Fashion Editorial statement */}
       <section
         id="about"
         className="w-full bg-[#000000] border-b border-[#1c1c1f] py-40 px-6 md:px-20 relative overflow-hidden"
       >
-        {/* Subtle decorative crosshair corner markings */}
-        <div className="absolute top-10 left-10 text-[8px] text-[#2a2a2f] font-mono select-none pointer-events-none">
-          ⌖ SYS_LOC_03A
-        </div>
-        <div className="absolute bottom-10 right-10 text-[8px] text-[#2a2a2f] font-mono select-none pointer-events-none">
-          ⌖ SYS_LOC_03B
-        </div>
-
         <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 relative z-10">
 
           {/* Left Column: Slides Upwards */}
@@ -241,23 +230,15 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
               transition: 'transform 0.1s ease-out'
             }}
           >
-            <div className="flex items-center gap-3">
-              <span className="text-[10px] tracking-[0.6em] text-[#a39081] font-black uppercase">
-                03 / THE ESSENCE
-              </span>
-              <div className="w-12 h-[1px] bg-[#a39081]/30" />
-            </div>
+            <span className="text-[10px] tracking-[0.6em] text-[#a39081] font-black uppercase">
+              03 / ESSENCE
+            </span>
 
             <h3 className="text-4xl md:text-5xl font-black tracking-[0.15em] text-[#e3e3e5] uppercase leading-none">
               PURE ANATOMY.
             </h3>
 
-            {/* Fine architectural line dividers */}
-            <div className="w-full h-[1px] bg-[#1c1c1f]" />
-
-            <p className="text-xs md:text-sm leading-relaxed text-[#5a554f] uppercase tracking-wider font-bold max-w-sm">
-              STRUCTURAL RIGOR REJECTS SUPERFICIAL DECORATION. EACH PIECE EMERGES AS A HIGH-PERFORMANCE OBJECT SCULPTED FOR TIMELESSNESS.
-            </p>
+            <div className="w-12 h-[1px] bg-[#a39081]/30" />
           </div>
 
           {/* Right Column: Slides Downwards */}
@@ -268,203 +249,161 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
               transition: 'transform 0.1s ease-out'
             }}
           >
-            <div className="flex justify-between text-[7px] text-[#423f40] font-mono">
-              <span>[ MATRIX SCALE: 1.000 ]</span>
-              <span>[ BRUTAL_RIGOR_ACTIVE ]</span>
-            </div>
-
-            <p className="text-xs leading-relaxed text-[#8a857e] uppercase tracking-widest font-black">
-              DESIGNED IN GENÈVE. ZERO EXTRA DETAIL. MONOCOQUE CARBON MATRIX AND DENSE COMPOSITE MATERIALS COMBINE IN UNCOMPROMISING FORM.
+            <p className="text-sm md:text-md leading-relaxed text-[#8a857e] uppercase tracking-widest font-black">
+              WE SEEK ABSOLUTE STRUCTURAL RIGOR. FORM STRIPPED BARE TO EXPOSE PERFORMANCE RADICALITY.
             </p>
-
-            <div className="w-full h-[1px] bg-gradient-to-r from-[#1c1c1f] to-transparent" />
-
-            <div className="space-y-1 text-[8px] text-[#423f40] uppercase font-bold tracking-widest">
-              <div>[ COORDINATES : 46.2044° N, 6.1432° E ]</div>
-              <div>[ STATUS : MONOLITHIC RAW ]</div>
-              <div>[ STRUCTURAL LATENCY : 0.04ms ]</div>
-            </div>
           </div>
 
         </div>
       </section>
 
-      {/* STAGE 3: THE GALLERY (04 / RAW SPECIMENS) - SCHEMATIC BLUEPRINTS & DETAILED POLISH */}
+      {/* STAGE 3: THE GALLERY (04 / SPECIMENS) - LANDO NORRIS "HELMETS" STYLE GALLERY */}
       <section
         id="gallery"
         className="w-full bg-[#050506] border-b border-[#1c1c1f] py-40 px-6 md:px-20 relative overflow-hidden"
       >
-        <div className="max-w-6xl mx-auto space-y-20 relative z-10">
+        <div className="max-w-6xl mx-auto space-y-16 relative z-10">
 
-          <div className="flex justify-between items-end">
-            <div className="flex flex-col gap-2">
-              <span className="text-[10px] tracking-[0.6em] text-[#a39081] font-black uppercase">
-                04 / SPECIMENS
-              </span>
-              <h3 className="text-3xl md:text-4xl font-black tracking-[0.2em] text-[#e3e3e5] uppercase">
-                ARCHITECTURAL OBJECTS
-              </h3>
-            </div>
-            <div className="hidden md:flex flex-col text-right text-[7.5px] font-mono text-[#423f40]">
-              <span>[ RENDERING SOURCE: REAL-TIME WEBGL ]</span>
-              <span>[ REVEAL_STATE_04 // OPERATIONAL ]</span>
-            </div>
+          <div className="flex flex-col gap-2">
+            <span className="text-[10px] tracking-[0.6em] text-[#a39081] font-black uppercase">
+              04 / SPECIMENS
+            </span>
+            <h3 className="text-3xl md:text-4xl font-black tracking-[0.2em] text-[#e3e3e5] uppercase">
+              BLUEPRINT REVELATIONS
+            </h3>
           </div>
 
-          {/* Staggered Blueprint Cards with detailed wireframes & structural specs */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-8">
+          {/* Lando Norris-inspired grid of specimens: clean background, stark wireframes, hover overlays */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-4">
 
-            {/* Specimen 01 */}
+            {/* Model M-01 / CARBON */}
             <div
               onMouseEnter={() => setHoveredSpecimen(1)}
               onMouseLeave={() => setHoveredSpecimen(null)}
-              style={{ ...card1Style, transition: 'transform 0.1s ease-out, border-color 0.5s, background-color 0.5s' }}
-              className={`border p-8 bg-[#000000] flex flex-col justify-between h-[420px] rounded-none relative overflow-hidden ${
-                hoveredSpecimen === 1 ? 'border-[#a39081]/60 bg-[#0c0c0e]' : 'border-[#1c1c1f]'
+              style={{ ...card1Style, transition: 'transform 0.15s ease-out, border-color 0.4s, background-color 0.4s' }}
+              className={`border p-8 bg-[#000000] flex flex-col justify-between h-[450px] rounded-none relative overflow-hidden group cursor-pointer ${
+                hoveredSpecimen === 1 ? 'border-[#a39081] bg-[#09090b]' : 'border-[#1c1c1f]'
               }`}
             >
-              {/* Delicate top layout strip */}
-              <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#a39081]/20 to-transparent" />
+              {/* Giant clean index overlay on hover */}
+              <div className={`absolute -right-6 -bottom-10 text-[10rem] font-black transition-opacity duration-500 pointer-events-none select-none ${
+                hoveredSpecimen === 1 ? 'text-[#121215]/40 opacity-100' : 'text-[#09090b]/10 opacity-0'
+              }`}>
+                01
+              </div>
 
               <div className="flex justify-between items-start">
-                <span className="text-[10px] text-[#423f40] font-mono">SPEC_001_CARBON</span>
-                <HardDrive className={`w-3.5 h-3.5 transition-colors duration-500 ${hoveredSpecimen === 1 ? 'text-[#a39081]' : 'text-[#2a2a2f]'}`} />
+                <span className="text-[11px] text-[#423f40] font-mono tracking-widest">M-01 / RESONANCE</span>
+                <span className="text-[9px] text-[#a39081] font-mono font-bold">[ CARBON ]</span>
               </div>
 
-              {/* Graphic element: Schematic wireframe diagram */}
-              <div className="my-auto py-4 flex flex-col items-center">
-                <div className={`w-28 h-28 border border-dashed rounded-full flex items-center justify-center transition-all duration-700 ${
-                  hoveredSpecimen === 1 ? 'border-[#a39081]/30 rotate-90 scale-105' : 'border-[#1c1c1f]'
-                }`}>
-                  {/* Miniature internal soundboard bracing curve visualizer */}
-                  <div className="w-16 h-16 border border-dotted border-[#2a2a2f] rounded-full flex items-center justify-center">
-                    <span className="text-[7px] text-[#423f40] font-mono">78% VOID</span>
-                  </div>
-                </div>
+              {/* Precise Vector Schematic Visual representation */}
+              <div className="my-auto flex justify-center py-4">
+                <svg className={`w-32 h-32 transition-transform duration-700 ${
+                  hoveredSpecimen === 1 ? 'scale-110 rotate-12 stroke-[#a39081]' : 'stroke-[#2a2a2f]'
+                }`} viewBox="0 0 100 100" fill="none" strokeWidth="1">
+                  <circle cx="50" cy="50" r="40" strokeDasharray="3,3" />
+                  <circle cx="50" cy="50" r="28" />
+                  <line x1="50" y1="10" x2="50" y2="90" />
+                  <line x1="10" y1="50" x2="90" y2="50" />
+                </svg>
               </div>
 
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="block font-black tracking-[0.2em] text-[#e3e3e5] text-xs uppercase">
-                    CARBON SOUNDBOARD
-                  </span>
-                  <span className="text-[8px] text-[#5a554f] font-mono">[ 78% VOID ]</span>
-                </div>
-
-                <p className="text-[9px] text-[#5a554f] uppercase font-bold tracking-wider leading-relaxed">
-                  Monocoque high-tension carbon acoustics with zero interior bracing. Optimized resonator ports.
+              <div className="space-y-2 relative z-20">
+                <div className="h-[1px] bg-gradient-to-r from-[#1c1c1f] to-transparent w-full" />
+                <h4 className="font-black tracking-[0.25em] text-[#e3e3e5] text-sm uppercase">
+                  CARBON SOUNDBOARD
+                </h4>
+                <p className="text-[9px] text-[#5a554f] group-hover:text-[#8a857e] transition-colors uppercase font-bold tracking-wider leading-relaxed">
+                  Monocoque high-tension carbon shell structures maximizing acoustic projection dynamics.
                 </p>
-
-                <div className="w-full h-[1px] bg-[#111112]" />
-
-                <div className="flex justify-between text-[7px] text-[#423f40] font-mono">
-                  <span>RES_COEFF: 0.94</span>
-                  <span>CAP_LIMIT: 12kHz</span>
-                </div>
               </div>
             </div>
 
-            {/* Specimen 02 */}
+            {/* Model M-02 / COMPOSITE */}
             <div
               onMouseEnter={() => setHoveredSpecimen(2)}
               onMouseLeave={() => setHoveredSpecimen(null)}
-              style={{ ...card2Style, transition: 'transform 0.1s ease-out, border-color 0.5s, background-color 0.5s' }}
-              className={`border p-8 bg-[#000000] flex flex-col justify-between h-[420px] rounded-none relative overflow-hidden ${
-                hoveredSpecimen === 2 ? 'border-[#a39081]/60 bg-[#0c0c0e]' : 'border-[#1c1c1f]'
+              style={{ ...card2Style, transition: 'transform 0.15s ease-out, border-color 0.4s, background-color 0.4s' }}
+              className={`border p-8 bg-[#000000] flex flex-col justify-between h-[450px] rounded-none relative overflow-hidden group cursor-pointer ${
+                hoveredSpecimen === 2 ? 'border-[#a39081] bg-[#09090b]' : 'border-[#1c1c1f]'
               }`}
             >
-              {/* Delicate top layout strip */}
-              <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#a39081]/20 to-transparent" />
+              <div className={`absolute -right-6 -bottom-10 text-[10rem] font-black transition-opacity duration-500 pointer-events-none select-none ${
+                hoveredSpecimen === 2 ? 'text-[#121215]/40 opacity-100' : 'text-[#09090b]/10 opacity-0'
+              }`}>
+                02
+              </div>
 
               <div className="flex justify-between items-start">
-                <span className="text-[10px] text-[#423f40] font-mono">SPEC_002_RICHLITE</span>
-                <Cpu className={`w-3.5 h-3.5 transition-colors duration-500 ${hoveredSpecimen === 2 ? 'text-[#a39081]' : 'text-[#2a2a2f]'}`} />
+                <span className="text-[11px] text-[#423f40] font-mono tracking-widest">M-02 / INTEGRITY</span>
+                <span className="text-[9px] text-[#a39081] font-mono font-bold">[ COMPOSITE ]</span>
               </div>
 
-              {/* Graphic element: Color swatches and geometric load testing curves */}
-              <div className="my-auto py-4 flex flex-col items-center gap-4">
-                <div className="flex gap-1">
-                  <span className="w-2.5 h-2.5 bg-[#121214] border border-[#2a2a2f]" />
-                  <span className="w-2.5 h-2.5 bg-[#3e322d] border border-[#2a2a2f]" />
-                  <span className="w-2.5 h-2.5 bg-[#4c5054] border border-[#2a2a2f]" />
-                </div>
-                <div className="w-24 h-12 flex items-end gap-1 border-b border-l border-[#1c1c1f] p-1">
-                  <div className="w-2 h-4 bg-[#111112]" />
-                  <div className="w-2 h-8 bg-[#222225]" />
-                  <div className="w-2 h-10 bg-[#423f40]" />
-                  <div className="w-2 h-6 bg-[#1c1c1f]" />
-                </div>
+              {/* Solid Matrix Lattice Visual representation */}
+              <div className="my-auto flex justify-center py-4">
+                <svg className={`w-32 h-32 transition-transform duration-700 ${
+                  hoveredSpecimen === 2 ? 'scale-110 rotate-[-12deg] stroke-[#a39081]' : 'stroke-[#2a2a2f]'
+                }`} viewBox="0 0 100 100" fill="none" strokeWidth="1">
+                  <rect x="20" y="20" width="60" height="60" strokeDasharray="2,2" />
+                  <line x1="20" y1="20" x2="80" y2="80" />
+                  <line x1="80" y1="20" x2="20" y2="80" />
+                  <circle cx="50" cy="50" r="10" />
+                </svg>
               </div>
 
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="block font-black tracking-[0.2em] text-[#e3e3e5] text-xs uppercase">
-                    RICHLITE MATRIX
-                  </span>
-                  <span className="text-[8px] text-[#5a554f] font-mono">[ 24k PSI ]</span>
-                </div>
-
-                <p className="text-[9px] text-[#5a554f] uppercase font-bold tracking-wider leading-relaxed">
-                  Dense composite paper matrix ensuring exceptional structural response and complete climatic stability.
+              <div className="space-y-2 relative z-20">
+                <div className="h-[1px] bg-gradient-to-r from-[#1c1c1f] to-transparent w-full" />
+                <h4 className="font-black tracking-[0.25em] text-[#e3e3e5] text-sm uppercase">
+                  RICHLITE MATRIX
+                </h4>
+                <p className="text-[9px] text-[#5a554f] group-hover:text-[#8a857e] transition-colors uppercase font-bold tracking-wider leading-relaxed">
+                  Basalt dense paper composites optimized for complete structural and thermal integrity.
                 </p>
-
-                <div className="w-full h-[1px] bg-[#111112]" />
-
-                <div className="flex justify-between text-[7px] text-[#423f40] font-mono">
-                  <span>DENSITY: 1.25 g/cm³</span>
-                  <span>LOAD_STRENGTH: SECURE</span>
-                </div>
               </div>
             </div>
 
-            {/* Specimen 03 */}
+            {/* Model M-03 / METRIC */}
             <div
               onMouseEnter={() => setHoveredSpecimen(3)}
               onMouseLeave={() => setHoveredSpecimen(null)}
-              style={{ ...card3Style, transition: 'transform 0.1s ease-out, border-color 0.5s, background-color 0.5s' }}
-              className={`border p-8 bg-[#000000] flex flex-col justify-between h-[420px] rounded-none relative overflow-hidden ${
-                hoveredSpecimen === 3 ? 'border-[#a39081]/60 bg-[#0c0c0e]' : 'border-[#1c1c1f]'
+              style={{ ...card3Style, transition: 'transform 0.15s ease-out, border-color 0.4s, background-color 0.4s' }}
+              className={`border p-8 bg-[#000000] flex flex-col justify-between h-[450px] rounded-none relative overflow-hidden group cursor-pointer ${
+                hoveredSpecimen === 3 ? 'border-[#a39081] bg-[#09090b]' : 'border-[#1c1c1f]'
               }`}
             >
-              {/* Delicate top layout strip */}
-              <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#a39081]/20 to-transparent" />
+              <div className={`absolute -right-6 -bottom-10 text-[10rem] font-black transition-opacity duration-500 pointer-events-none select-none ${
+                hoveredSpecimen === 3 ? 'text-[#121215]/40 opacity-100' : 'text-[#09090b]/10 opacity-0'
+              }`}>
+                03
+              </div>
 
               <div className="flex justify-between items-start">
-                <span className="text-[10px] text-[#423f40] font-mono">SPEC_003_MULTISCALE</span>
-                <ShieldAlert className={`w-3.5 h-3.5 transition-colors duration-500 ${hoveredSpecimen === 3 ? 'text-[#a39081]' : 'text-[#2a2a2f]'}`} />
+                <span className="text-[11px] text-[#423f40] font-mono tracking-widest">M-03 / PROFILE</span>
+                <span className="text-[9px] text-[#a39081] font-mono font-bold">[ METRICS ]</span>
               </div>
 
-              {/* Graphic element: Fanned fret angle lines diagram */}
-              <div className="my-auto py-4 flex flex-col items-center">
-                <div className={`w-32 h-16 flex flex-col gap-1 items-center transition-all duration-500 ${
-                  hoveredSpecimen === 3 ? 'scale-105 opacity-100' : 'opacity-40'
-                }`}>
-                  <div className="w-24 h-[1.5px] bg-[#a39081] rotate-[-5deg]" />
-                  <div className="w-24 h-[1.5px] bg-[#a39081] rotate-[-2deg]" />
-                  <div className="w-24 h-[1.5px] bg-[#a39081] rotate-0" />
-                  <div className="w-24 h-[1.5px] bg-[#a39081] rotate-[3deg]" />
-                  <div className="w-24 h-[1.5px] bg-[#a39081] rotate-[6deg]" />
-                </div>
+              {/* Fanned Fretboard Layout Diagram Visual representation */}
+              <div className="my-auto flex justify-center py-4">
+                <svg className={`w-32 h-32 transition-transform duration-700 ${
+                  hoveredSpecimen === 3 ? 'scale-110 stroke-[#a39081]' : 'stroke-[#2a2a2f]'
+                }`} viewBox="0 0 100 100" fill="none" strokeWidth="1">
+                  <line x1="15" y1="20" x2="15" y2="80" />
+                  <line x1="30" y1="22" x2="33" y2="78" />
+                  <line x1="45" y1="24" x2="51" y2="76" />
+                  <line x1="60" y1="26" x2="69" y2="74" />
+                  <line x1="75" y1="28" x2="87" y2="72" />
+                </svg>
               </div>
 
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="block font-black tracking-[0.2em] text-[#e3e3e5] text-xs uppercase">
-                    FANNED METRICS
-                  </span>
-                  <span className="text-[8px] text-[#5a554f] font-mono">[ MULTI_SCALE ]</span>
-                </div>
-
-                <p className="text-[9px] text-[#5a554f] uppercase font-bold tracking-wider leading-relaxed">
-                  Dual-length multiscale layout balancing high tension response on bass registers with treble sweep speed.
+              <div className="space-y-2 relative z-20">
+                <div className="h-[1px] bg-gradient-to-r from-[#1c1c1f] to-transparent w-full" />
+                <h4 className="font-black tracking-[0.25em] text-[#e3e3e5] text-sm uppercase">
+                  FANNED FRETS
+                </h4>
+                <p className="text-[9px] text-[#5a554f] group-hover:text-[#8a857e] transition-colors uppercase font-bold tracking-wider leading-relaxed">
+                  Perfected fanned multi-scale spacing for customized register tensions.
                 </p>
-
-                <div className="w-full h-[1px] bg-[#111112]" />
-
-                <div className="flex justify-between text-[7px] text-[#423f40] font-mono">
-                  <span>SCALE_MIN: 25.0 in</span>
-                  <span>SCALE_MAX: 25.5 in</span>
-                </div>
               </div>
             </div>
 
@@ -472,7 +411,7 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
         </div>
       </section>
 
-      {/* STAGE 4: CONTACT & SOCIALS (05 / INQUIRIES) - CONVERGING BRUTALIST PANELS + CHANNELS & ACTIVE STATUS PULSE */}
+      {/* STAGE 4: CONTACT & SOCIALS (05 / INQUIRIES) - CLEAN ULTRA-MINIMAL COMMUNICATIONS PORTAL */}
       <section
         id="contact"
         className="w-full bg-[#000000] py-40 px-6 md:px-20 relative overflow-hidden"
@@ -481,34 +420,24 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
 
           {/* Left Panel: Converges from the left on scroll */}
           <div
-            className="p-12 md:p-20 bg-[#040405] border-b md:border-b-0 md:border-r border-[#1c1c1f] flex flex-col justify-between space-y-12"
+            className="p-12 md:p-20 bg-[#040405] border-b md:border-b-0 md:border-r border-[#1c1c1f] flex flex-col justify-between space-y-12 animate-none"
             style={{
               transform: `translateX(${leftConvergeX}px)`,
               transition: 'transform 0.1s ease-out'
             }}
           >
             <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <span className="text-[9px] tracking-[0.5em] text-[#a39081] font-black uppercase block">
-                  05 / THE PORTAL
-                </span>
-                <span className="w-1.5 h-1.5 bg-[#a39081]/40 rounded-full" />
-              </div>
+              <span className="text-[9px] tracking-[0.5em] text-[#a39081] font-black uppercase block">
+                05 / THE PORTAL
+              </span>
               <h3 className="text-3xl font-black tracking-[0.2em] text-[#e3e3e5] uppercase leading-none">
                 CONTACT
               </h3>
             </div>
 
             <p className="text-xs leading-relaxed text-[#5a554f] uppercase tracking-widest font-black max-w-xs">
-              DIGITAL COMMISSIONS ARE ENTERED VIA CONFIGURATION SEQUENCES. FOR PERSONAL DIRECT INQUIRIES, CONNECT VIA THE SECURE CHANNELS OPPOSITE.
+              COMMISSIONS ARE EXCLUSIVELY ROUTED VIA DIGITAL BLUEPRINT SEQUENCES. SECURE CORRESPONDENCE CHANNELS ARE LISTED OPPOSITE.
             </p>
-
-            {/* Swiss corporate and legal registry notes */}
-            <div className="space-y-1 text-[7px] text-[#423f40] font-mono">
-              <div>REGISTRATION ID: CH-482.903.111</div>
-              <div>VAT ID: CHE-908.411.530 MWST</div>
-              <div>GENEVA OFFICE : OPERATIONAL</div>
-            </div>
           </div>
 
           {/* Right Panel: Converges from the right on scroll */}
@@ -521,7 +450,7 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
           >
             <div className="space-y-6">
               <span className="text-[8px] tracking-[0.4em] text-[#423f40] font-black uppercase block">
-                DIRECT CHANNELS
+                CHANNELS
               </span>
 
               <div className="space-y-4 text-[11px] font-black text-[#8a857e] tracking-widest uppercase">
@@ -529,15 +458,8 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
                   href="mailto:studio@luxeluthiers.com"
                   className="flex items-center justify-between group border-b border-[#1c1c1f] pb-3 hover:text-[#e3e3e5] transition-colors"
                 >
-                  <div className="flex items-center gap-3">
-                    <Mail className="w-3.5 h-3.5 text-[#a39081]/60" />
-                    <span>STUDIO@LUXELUTHIERS.COM</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-                    <span className="text-[7px] text-[#423f40] font-mono">[ READY ]</span>
-                    <ArrowRight className="w-3.5 h-3.5 text-[#a39081]/40 group-hover:translate-x-1.5 transition-transform" />
-                  </div>
+                  <span>STUDIO@LUXELUTHIERS.COM</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-[#a39081]/40 group-hover:translate-x-1.5 transition-transform" />
                 </a>
 
                 <a
@@ -546,15 +468,8 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
                   rel="noopener noreferrer"
                   className="flex items-center justify-between group border-b border-[#1c1c1f] pb-3 hover:text-[#e3e3e5] transition-colors"
                 >
-                  <div className="flex items-center gap-3">
-                    <Globe className="w-3.5 h-3.5 text-[#a39081]/60" />
-                    <span>INSTAGRAM</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="w-2 h-2 bg-[#a39081]/40 rounded-full" />
-                    <span className="text-[7px] text-[#423f40] font-mono">[ DAILY ]</span>
-                    <ArrowRight className="w-3.5 h-3.5 text-[#a39081]/40 group-hover:translate-x-1.5 transition-transform" />
-                  </div>
+                  <span>INSTAGRAM</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-[#a39081]/40 group-hover:translate-x-1.5 transition-transform" />
                 </a>
 
                 <a
@@ -563,24 +478,9 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
                   rel="noopener noreferrer"
                   className="flex items-center justify-between group border-b border-[#1c1c1f] pb-3 hover:text-[#e3e3e5] transition-colors"
                 >
-                  <div className="flex items-center gap-3">
-                    <Radio className="w-3.5 h-3.5 text-[#a39081]/60" />
-                    <span>TWITTER</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="w-2 h-2 bg-[#a39081]/40 rounded-full" />
-                    <span className="text-[7px] text-[#423f40] font-mono">[ BROADCAST ]</span>
-                    <ArrowRight className="w-3.5 h-3.5 text-[#a39081]/40 group-hover:translate-x-1.5 transition-transform" />
-                  </div>
+                  <span>TWITTER</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-[#a39081]/40 group-hover:translate-x-1.5 transition-transform" />
                 </a>
-
-                <div className="flex items-center justify-between border-b border-[#1c1c1f] pb-3 text-[#423f40]">
-                  <div className="flex items-center gap-3">
-                    <Key className="w-3.5 h-3.5 text-[#423f40]/50" />
-                    <span>PGP KEY ID: 0x9B2A782D</span>
-                  </div>
-                  <span className="text-[7px] font-mono">[ VERIFIED ]</span>
-                </div>
               </div>
             </div>
 
