@@ -30,8 +30,8 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
   const [heights, setHeights] = useState({
     about: 800,
     innovations: 900,
-    gallery: 1600,
-    contact: 900,
+    gallery: 1800, // slightly larger to support horizontal padding
+    contact: 600,  // decreased vertical padding
   });
 
   // Hover states for Specimens
@@ -53,8 +53,8 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
       setHeights({
         about: aboutRef.current?.offsetHeight ?? 800,
         innovations: innovationsRef.current?.offsetHeight ?? 900,
-        gallery: galleryRef.current?.offsetHeight ?? 1600,
-        contact: contactRef.current?.offsetHeight ?? 900,
+        gallery: galleryRef.current?.offsetHeight ?? 1800,
+        contact: contactRef.current?.offsetHeight ?? 600,
       });
     }
   };
@@ -96,18 +96,19 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
 
     const startY = container.scrollTop;
     const distance = targetY - startY;
-    const duration = 400; // Ultra-fast responsive 400ms scroll transition
+    const duration = 500; // Fast 500ms transition
     let startTime: number | null = null;
 
-    // Fast and premium ease-out cubic curve
-    const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+    // Sweet, professional custom cubic-bezier ease-out (cubic-bezier(0.25, 1, 0.5, 1))
+    // We can formulate an equivalent easing function:
+    const easeOutQuart = (t: number) => 1 - Math.pow(1 - t, 4);
 
     const step = (currentTime: number) => {
       if (startTime === null) startTime = currentTime;
       const timeElapsed = currentTime - startTime;
       const progress = Math.min(timeElapsed / duration, 1);
 
-      container.scrollTop = startY + distance * easeOutCubic(progress);
+      container.scrollTop = startY + distance * easeOutQuart(progress);
 
       if (progress < 1) {
         requestAnimationFrame(step);
@@ -143,28 +144,37 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
   const rightColY = (progress03 - 0.5) * 120;
 
   // 04 / Innovations progress - centered at progress04 === 0.5
-  const progress04 = Math.max(0, Math.min(1, (scrollY + viewportHeight / 2 - offsets.innovations) / heights.innovations));
+  // We align progress04 such that it reaches exactly 0.5 when the innovations block is aligned in the viewport.
+  const progress04Raw = (scrollY + (viewportHeight / 2) - offsets.innovations) / heights.innovations;
+  const progress04 = Math.max(0, Math.min(1, progress04Raw));
 
-  // Staggered tilt rotation that becomes perfectly parallel (0deg) at exact mid-screen (progress04 === 0.5)
+  // Staggered tilt rotation that becomes mathematically parallel (0deg) at exact mid-screen (progress04 === 0.5)
   const card1Style = {
-    transform: `translateY(${(progress04 - 0.5) * -70}px) rotate(${(progress04 - 0.5) * 6}deg) scale(${hoveredSpecimen === 1 ? 1.02 : 1})`,
+    transform: `translateY(${(progress04 - 0.5) * -70}px) rotate(${(progress04 - 0.5) * 12}deg) scale(${hoveredSpecimen === 1 ? 1.02 : 1})`,
   };
   const card2Style = {
-    transform: `translateY(${(progress04 - 0.5) * -140}px) rotate(${(progress04 - 0.5) * -8}deg) scale(${hoveredSpecimen === 2 ? 1.02 : 1})`,
+    transform: `translateY(${(progress04 - 0.5) * -140}px) rotate(${(progress04 - 0.5) * -16}deg) scale(${hoveredSpecimen === 2 ? 1.02 : 1})`,
   };
   const card3Style = {
-    transform: `translateY(${(progress04 - 0.5) * -35}px) rotate(${(progress04 - 0.5) * 4}deg) scale(${hoveredSpecimen === 3 ? 1.02 : 1})`,
+    transform: `translateY(${(progress04 - 0.5) * -35}px) rotate(${(progress04 - 0.5) * 8}deg) scale(${hoveredSpecimen === 3 ? 1.02 : 1})`,
   };
 
   // 05 / Gallery Horizontal Scroll Progress
   const galleryProgress = Math.max(0, Math.min(1, (scrollY - offsets.gallery) / (heights.gallery - (viewportHeight - 70))));
-  const maxTranslateWidth = Math.max(200, 1850 - windowWidth);
-  const horizontalTranslateX = -galleryProgress * maxTranslateWidth;
+
+  // To allow padding after the last image, we multiply the scroll factor such that translation ends before galleryProgress reaches 1.0.
+  // We cap the horizontal translation at 100% of maxTranslateWidth when scroll reaches 80% progress, giving 20% scroll padding.
+  const translationFactor = Math.min(1.0, galleryProgress / 0.82);
+  const maxTranslateWidth = Math.max(200, 1950 - windowWidth);
+  const horizontalTranslateX = -translationFactor * maxTranslateWidth;
 
   // 06 / Portal (Contact) converging gates - closes completely at the center of the screen
-  const progress06 = Math.max(0, Math.min(1, (scrollY + viewportHeight / 2 - offsets.contact) / heights.contact));
-  // The gate closes proportionally between 0.0 and 0.5, remaining fully closed at 0.5 and beyond
-  const convergeFactor = Math.max(0, 1 - (progress06 * 2.0));
+  // And it MUST stay closed when scrolled all the way down.
+  const progress06Raw = (scrollY + (viewportHeight / 2) - offsets.contact) / heights.contact;
+  const progress06 = Math.max(0, Math.min(1, progress06Raw));
+
+  // The gate closes proportionally between 0.0 and 0.5, and is clamped to 0 from 0.5 to 1.0 so that it stays shut
+  const convergeFactor = progress06 < 0.5 ? (1.0 - (progress06 * 2.0)) : 0.0;
   const leftConvergeX = convergeFactor * -250;
   const rightConvergeX = convergeFactor * 250;
 
@@ -324,25 +334,21 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
         id="about"
         className="w-full bg-[#000000] border-b border-[#1c1c1f] py-48 px-6 md:px-20 relative overflow-hidden"
       >
-        {/* PERSONALITY SIGNATURE: Rotating concentric caliper compass */}
-        <div className="absolute top-[20%] right-[10%] w-[450px] h-[450px] pointer-events-none z-0 opacity-[0.06]">
+        {/* PERSONALITY SIGNATURE: Stark, sophisticated intersecting brutalist gear loops background */}
+        <div className="absolute inset-0 pointer-events-none z-0 opacity-[0.05] flex items-center justify-center">
           <svg
-            className="w-full h-full stroke-[#a39081] fill-none"
+            className="w-[600px] h-[600px] stroke-[#a39081] fill-none"
             viewBox="0 0 200 200"
             style={{
-              transform: `rotate(${scrollY * 0.04}deg)`,
+              transform: `rotate(${scrollY * -0.06}deg)`,
               transition: 'transform 0.05s linear',
             }}
           >
-            <circle cx="100" cy="100" r="90" strokeDasharray="1, 4" strokeWidth="0.5" />
-            <circle cx="100" cy="100" r="75" strokeWidth="0.25" />
-            <circle cx="100" cy="100" r="50" strokeDasharray="4, 4" strokeWidth="0.5" />
-            <circle cx="100" cy="100" r="30" strokeWidth="0.25" />
-            <line x1="100" y1="0" x2="100" y2="200" strokeWidth="0.2" />
-            <line x1="0" y1="100" x2="200" y2="100" strokeWidth="0.2" />
-            {/* Compass degree markers */}
-            <text x="102" y="18" fill="#a39081" fontSize="5" className="font-mono tracking-widest">N 0.00°</text>
-            <text x="102" y="190" fill="#a39081" fontSize="5" className="font-mono tracking-widest">S 180.00°</text>
+            <polygon points="100,20 170,90 100,160 30,90" strokeWidth="0.5" strokeDasharray="3,3" />
+            <circle cx="100" cy="90" r="60" strokeWidth="0.25" />
+            <circle cx="100" cy="90" r="45" strokeWidth="0.5" />
+            <line x1="100" y1="20" x2="100" y2="160" strokeWidth="0.2" />
+            <line x1="30" y1="90" x2="170" y2="90" strokeWidth="0.2" />
           </svg>
         </div>
 
@@ -389,15 +395,11 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
         id="gallery"
         className="w-full bg-[#050506] border-b border-[#1c1c1f] py-48 px-6 md:px-20 relative overflow-hidden"
       >
-        {/* PERSONALITY SIGNATURE: Left-aligned technical frequency EDO ruler scale */}
-        <div className="absolute top-0 left-4 w-12 h-full pointer-events-none z-0 opacity-10 flex flex-col justify-between py-12 border-r border-dashed border-[#a39081]/30 text-[7px] font-mono tracking-widest text-[#a39081]">
-          <div>EDO SCALE 12</div>
-          <div>• 26.25" FANNED</div>
-          <div>• HZ 440.00</div>
-          <div>EDO SCALE 19</div>
-          <div>• 34.00" BASE</div>
-          <div>• HZ 55.00</div>
-          <div>EDO SCALE 31</div>
+        {/* PERSONALITY SIGNATURE: Premium minimal technical architectural blueprint grid background overlay */}
+        <div className="absolute inset-0 pointer-events-none z-0 opacity-[0.04]">
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#a39081_1px,transparent_1px),linear-gradient(to_bottom,#a39081_1px,transparent_1px)] bg-[size:40px_40px]" />
+          <div className="absolute top-[20%] left-[5%] w-[90%] h-[1px] bg-[#a39081]" />
+          <div className="absolute top-[80%] left-[5%] w-[90%] h-[1px] bg-[#a39081]" />
         </div>
 
         <div className="max-w-6xl mx-auto space-y-16 relative z-10">
@@ -431,7 +433,7 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
               </div>
 
               <div className="flex justify-between items-start">
-                <span className="text-[11px] text-[#423f40] font-mono tracking-widest">M-01 / RESONANCE</span>
+                <span className="text-[11px] text-[#423f40] font-mono tracking-widest">M-01</span>
                 <span className="text-[9px] text-[#a39081] font-mono font-bold">[ CARBON ]</span>
               </div>
 
@@ -474,7 +476,7 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
               </div>
 
               <div className="flex justify-between items-start">
-                <span className="text-[11px] text-[#423f40] font-mono tracking-widest">M-02 / INTEGRITY</span>
+                <span className="text-[11px] text-[#423f40] font-mono tracking-widest">M-02</span>
                 <span className="text-[9px] text-[#a39081] font-mono font-bold">[ COMPOSITE ]</span>
               </div>
 
@@ -517,7 +519,7 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
               </div>
 
               <div className="flex justify-between items-start">
-                <span className="text-[11px] text-[#423f40] font-mono tracking-widest">M-03 / PROFILE</span>
+                <span className="text-[11px] text-[#423f40] font-mono tracking-widest">M-03</span>
                 <span className="text-[9px] text-[#a39081] font-mono font-bold">[ METRICS ]</span>
               </div>
 
@@ -549,19 +551,18 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
         </div>
       </section>
 
-      {/* NEW STAGE: THE GALLERY SECTION (05 / MASTERBUILT GALLERY) - HORIZONTAL SCROLL ON VERTICAL SCROLL */}
+      {/* STAGE 4: THE GALLERY SECTION (05 / MASTERBUILT GALLERY) - HORIZONTAL SCROLL ON VERTICAL SCROLL WITH PADDING */}
       <section
         ref={galleryRef}
         id="gallery"
-        className="w-full bg-[#000000] relative h-[220vh]"
+        className="w-full bg-[#000000] relative h-[240vh]"
       >
         <div className="sticky top-[70px] h-[calc(100vh-70px)] w-full overflow-hidden flex flex-col justify-center">
 
           {/* PERSONALITY SIGNATURE: Fine coordinate frames and crop marks at the top/bottom edges */}
           <div className="absolute top-8 left-12 right-12 flex justify-between text-[8px] font-mono tracking-[0.2em] text-[#423f40] border-b border-[#111112] pb-2">
-            <span>[ FOCUS FIELD 05 ]</span>
-            <span>GRID SYSTEM: S-T3</span>
-            <span>+ CORNER MARKS ON</span>
+            <span>[ STAGE field 05 ]</span>
+            <span>GRID FRAME ALPHA</span>
           </div>
 
           <div className="max-w-7xl mx-auto w-full px-12 md:px-20 mb-8 flex flex-col gap-1">
@@ -590,11 +591,9 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
 
                 <div className="flex justify-between items-center">
                   <span className="text-[9px] font-mono text-[#a39081] tracking-widest">[ SPECIMEN M-01 ]</span>
-                  <span className="text-[8px] font-mono text-[#423f40]">45.439° N, 6.223° E</span>
                 </div>
                 <div className="my-auto flex justify-center py-4">
                   <svg className="w-28 h-28 stroke-[#a39081]/40 group-hover:stroke-[#a39081] transition-colors duration-500 fill-none" viewBox="0 0 100 100" strokeWidth="1">
-                    {/* Abstract technical silhouette of guitar body */}
                     <path d="M50,15 C30,15 20,30 20,55 C20,75 35,90 50,90 C65,90 80,75 80,55 C80,30 70,15 50,15 Z" />
                     <circle cx="50" cy="55" r="10" strokeDasharray="2,2" />
                     <line x1="50" y1="15" x2="50" y2="90" strokeDasharray="3,3" />
@@ -615,7 +614,6 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
 
                 <div className="flex justify-between items-center">
                   <span className="text-[9px] font-mono text-[#a39081] tracking-widest">[ SPECIMEN M-02 ]</span>
-                  <span className="text-[8px] font-mono text-[#423f40]">GENÈVE LAB S-12</span>
                 </div>
                 <div className="my-auto flex justify-center py-4">
                   <svg className="w-28 h-28 stroke-[#a39081]/40 group-hover:stroke-[#a39081] transition-colors duration-500 fill-none" viewBox="0 0 100 100" strokeWidth="1">
@@ -639,7 +637,6 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
 
                 <div className="flex justify-between items-center">
                   <span className="text-[9px] font-mono text-[#a39081] tracking-widest">[ SPECIMEN M-03 ]</span>
-                  <span className="text-[8px] font-mono text-[#423f40]">TUNING: DROP D</span>
                 </div>
                 <div className="my-auto flex justify-center py-4">
                   <svg className="w-28 h-28 stroke-[#a39081]/40 group-hover:stroke-[#a39081] transition-colors duration-500 fill-none" viewBox="0 0 100 100" strokeWidth="1">
@@ -663,7 +660,6 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
 
                 <div className="flex justify-between items-center">
                   <span className="text-[9px] font-mono text-[#a39081] tracking-widest">[ SPECIMEN M-04 ]</span>
-                  <span className="text-[8px] font-mono text-[#423f40]">CARBON MONOCOQUE</span>
                 </div>
                 <div className="my-auto flex justify-center py-4">
                   <svg className="w-28 h-28 stroke-[#a39081]/40 group-hover:stroke-[#a39081] transition-colors duration-500 fill-none" viewBox="0 0 100 100" strokeWidth="1">
@@ -681,9 +677,7 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
           </div>
 
           <div className="absolute bottom-8 left-12 right-12 flex justify-between text-[8px] font-mono tracking-[0.2em] text-[#423f40] border-t border-[#111112] pt-2">
-            <span>SCROLL PROGRESS: {Math.round(galleryProgress * 100)}%</span>
-            <span>SPECIFICATION CODES READY</span>
-            <span>[ SYSTEM ACTIVE ]</span>
+            <span>READY SPECIFICATION CODES</span>
           </div>
 
         </div>
@@ -693,7 +687,7 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
       <section
         ref={contactRef}
         id="contact"
-        className="w-full bg-[#000000] py-48 px-6 md:px-20 relative overflow-hidden"
+        className="w-full bg-[#000000] py-24 px-6 md:px-20 relative overflow-hidden"
       >
         {/* PERSONALITY SIGNATURE: Refined split sine wave that converges and aligns when the gates lock */}
         <div className="absolute inset-0 pointer-events-none z-0 flex items-center justify-center opacity-[0.08]">
@@ -748,7 +742,7 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
             </div>
 
             <p className="text-xs leading-relaxed text-[#5a554f] uppercase tracking-widest font-black max-w-xs">
-              COMMISSIONS ARE EXCLUSIVELY ROUTED VIA DIGITAL BLUEPRINT SEQUENCES. SECURE CORRESPONDENCE CHANNELS ARE LISTED OPPOSITE.
+              COMMISSIONS ARE EXCLUSIVELY ROUTED VIA SECURE CORRESPONDENCE CHANNELS LISTED OPPOSITE.
             </p>
           </div>
 
