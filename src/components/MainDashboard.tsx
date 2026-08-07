@@ -147,10 +147,10 @@ TOTAL PRICE: $${total.toLocaleString()}.00 USD
   };
 
   return (
-    <div className="min-h-screen bg-[#0c0c0d] text-[#e3e3e5] flex flex-col font-sans selection:bg-[#a39081]/20 selection:text-[#e3e3e5] rounded-none">
+    <div className="min-h-screen bg-[#000000] text-[#e3e3e5] flex flex-col font-sans selection:bg-[#a39081]/20 selection:text-[#e3e3e5] rounded-none">
 
       {/* HEADER SECTION - Raw, brutalist borders with Logo Back-Button */}
-      <header className="border-b border-[#1a1a1c] bg-[#0c0c0d] px-6 py-4 flex flex-row items-center justify-between rounded-none">
+      <header className="border-b border-[#1c1c1f] bg-[#000000] px-6 py-4 flex flex-row items-center justify-between rounded-none">
         <div className="flex items-center gap-4 rounded-none">
           {onReturnToStartup ? (
             <button
@@ -159,7 +159,7 @@ TOTAL PRICE: $${total.toLocaleString()}.00 USD
               className="group text-left focus:outline-none rounded-none cursor-pointer"
             >
               <h1 className="text-base font-black tracking-[0.4em] text-[#e3e3e5] group-hover:text-[#a39081] transition-colors uppercase">
-                LVI Custom <span className="text-[10px] text-[#5a554f] group-hover:text-[#a39081] font-bold tracking-normal ml-2">← BACK</span>
+                LVI Custom
               </h1>
               <p className="text-[9px] text-[#5a554f] font-bold tracking-[0.2em] uppercase mt-0.5">
                 BESPOKE {config.instrumentType === 'bass' ? 'ACOUSTIC' : 'ELECTRIC'} STUDIO
@@ -178,7 +178,7 @@ TOTAL PRICE: $${total.toLocaleString()}.00 USD
         {/* Sticky Always-Visible Valuation in Top Bar */}
         <div className="flex items-center gap-3">
           <span className="text-[9px] tracking-[0.3em] text-[#5a554f] font-bold uppercase hidden sm:inline-block">ESTIMATED VALUATION</span>
-          <div className="border border-[#1a1a1c] px-3 py-1.5 bg-[#000000] rounded-none">
+          <div className="border border-[#1c1c1f] px-3 py-1.5 bg-[#000000] rounded-none">
             <PriceCounter value={total} />
           </div>
         </div>
@@ -188,7 +188,7 @@ TOTAL PRICE: $${total.toLocaleString()}.00 USD
       <main className="flex-1 grid grid-cols-1 md:grid-cols-2 rounded-none">
 
         {/* LEFT COLUMN: THE CINEMATIC 3D SCREEN - NO OVERLAYS EXCEPT TOP-LEFT SAVE/LOAD UTILITY */}
-        <section className="relative border-b md:border-b-0 md:border-r border-[#1a1a1c] h-[50vh] md:h-auto min-h-[350px] rounded-none bg-[#050506]">
+        <section className="relative border-b md:border-b-0 md:border-r border-[#1c1c1f] h-[50vh] md:h-auto min-h-[350px] rounded-none bg-[#000000]">
 
           {/* Top-Left Save/Load Widgets directly on model canvas */}
           <div className="absolute top-4 left-4 z-20 flex gap-2 rounded-none">
@@ -272,13 +272,13 @@ TOTAL PRICE: $${total.toLocaleString()}.00 USD
         </section>
 
         {/* RIGHT COLUMN: SCROLLABLE OPTIONS AND MINIMALIST BUY FORM */}
-        <section className="flex flex-col h-auto md:h-[calc(100vh-73px)] overflow-y-auto bg-[#0c0c0d] rounded-none">
+        <section className="flex flex-col h-auto md:h-[calc(100vh-73px)] overflow-y-auto bg-[#050506] rounded-none border-[#1c1c1f]">
 
           <div className="p-6 space-y-6 flex-1 rounded-none">
             <OptionsControlPanel />
 
             {/* ORDER INITIATION FORM */}
-            <form onSubmit={handleBuy} className="border-t border-[#1a1a1c] pt-8 space-y-5 rounded-none">
+            <form onSubmit={handleBuy} className="border-t border-[#1c1c1f] pt-8 space-y-5 rounded-none">
               <div className="rounded-none">
                 <h3 className="text-[10px] tracking-[0.3em] text-[#a39081] font-bold uppercase mb-2">
                   CLIENT ARCHIVE
@@ -299,7 +299,7 @@ TOTAL PRICE: $${total.toLocaleString()}.00 USD
                     placeholder=""
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full bg-[#121213] border border-[#1a1a1c] rounded-none px-3 py-2 text-[10px] uppercase tracking-wider font-bold text-[#e3e3e5] focus:outline-none focus:border-[#a39081]"
+                    className="w-full bg-[#000000] border border-[#1c1c1f] rounded-none px-3 py-2 text-[10px] uppercase tracking-wider font-bold text-[#e3e3e5] focus:outline-none focus:border-[#a39081]"
                   />
                 </div>
                 <div className="rounded-none">
@@ -312,7 +312,7 @@ TOTAL PRICE: $${total.toLocaleString()}.00 USD
                     placeholder=""
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-[#121213] border border-[#1a1a1c] rounded-none px-3 py-2 text-[10px] uppercase tracking-wider font-bold text-[#e3e3e5] focus:outline-none focus:border-[#a39081]"
+                    className="w-full bg-[#000000] border border-[#1c1c1f] rounded-none px-3 py-2 text-[10px] uppercase tracking-wider font-bold text-[#e3e3e5] focus:outline-none focus:border-[#a39081]"
                   />
                 </div>
               </div>
@@ -326,7 +326,7 @@ TOTAL PRICE: $${total.toLocaleString()}.00 USD
                   placeholder=""
                   value={specialInstructions}
                   onChange={(e) => setSpecialInstructions(e.target.value)}
-                  className="w-full bg-[#121213] border border-[#1a1a1c] rounded-none p-3 text-[10px] uppercase tracking-wider font-bold text-[#e3e3e5] focus:outline-none focus:border-[#a39081] resize-none"
+                  className="w-full bg-[#000000] border border-[#1c1c1f] rounded-none p-3 text-[10px] uppercase tracking-wider font-bold text-[#e3e3e5] focus:outline-none focus:border-[#a39081] resize-none"
                 />
               </div>
 

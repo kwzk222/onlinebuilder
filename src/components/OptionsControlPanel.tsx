@@ -110,12 +110,12 @@ export const OptionsControlPanel: React.FC = () => {
     <div className="space-y-4 font-sans rounded-none select-none">
 
       {/* MEASUREMENT SYSTEM SWITCHER */}
-      <div className="flex items-center justify-between border-b border-[#1a1a1c] pb-4 rounded-none">
+      <div className="flex items-center justify-between border-b border-[#1c1c1f] pb-4 rounded-none">
         <div className="flex flex-col">
           <span className="text-[9px] text-[#a39081] tracking-[0.25em] font-bold uppercase">SYSTEM STANDARDS</span>
           <span className="text-[10px] text-[#e3e3e5] tracking-wider uppercase font-bold">MEASUREMENT METRICS</span>
         </div>
-        <div className="flex border border-[#1a1a1c] bg-[#0c0c0d] p-0.5 rounded-none">
+        <div className="flex border border-[#1c1c1f] bg-[#000000] p-0.5 rounded-none">
           <button
             onClick={() => {
               const oldVal = config.relaxedHandMeasurement;
@@ -152,11 +152,11 @@ export const OptionsControlPanel: React.FC = () => {
       </div>
 
       {/* SECTION 1: NECK */}
-      <div className="border border-[#1a1a1c] bg-[#0c0c0d] rounded-none overflow-hidden">
+      <div className="border border-[#1c1c1f] bg-[#000000] rounded-none overflow-hidden">
         <button
           id="category-header-neck"
           onClick={() => toggleCategory('neck')}
-          className="w-full flex items-center justify-between px-5 py-4 text-left font-bold text-[#e3e3e5] hover:bg-[#121213] transition-colors rounded-none font-sans"
+          className="w-full flex items-center justify-between px-5 py-4 text-left font-bold text-[#e3e3e5] hover:bg-[#000000] transition-colors rounded-none font-sans"
         >
           <div className="flex items-center gap-3">
             <span className="text-[9px] text-[#a39081] tracking-[0.25em] font-bold font-sans">01 /</span>
@@ -166,10 +166,10 @@ export const OptionsControlPanel: React.FC = () => {
         </button>
 
         {activeCategory === 'neck' && (
-          <div className="p-5 border-t border-[#1a1a1c] space-y-6">
+          <div className="p-5 border-t border-[#1c1c1f] space-y-6">
 
             {/* Shortened Joint Explanation */}
-            <div className="bg-[#111112] border-l-2 border-[#a39081] p-3 text-[10px] leading-relaxed text-[#5a554f] uppercase tracking-wider font-semibold rounded-none">
+            <div className="bg-[#050506] border-l-2 border-[#a39081] p-3 text-[10px] leading-relaxed text-[#5a554f] uppercase tracking-wider font-semibold rounded-none">
               Monocoque one-piece carbon fiber body core. Integrated via a rigid "bolt through" neck joint featuring custom pillar bedding, with locking anchorage screws driven directly through the top face.
             </div>
 
@@ -183,8 +183,8 @@ export const OptionsControlPanel: React.FC = () => {
                     onClick={() => updateConfig({ neckProfile: profile })}
                     className={`relative p-3.5 text-left rounded-none border transition-all duration-200 font-sans flex flex-col justify-between h-32 ${
                       config.neckProfile === profile
-                        ? 'border-[#a39081]/60 bg-[#121213] text-[#a39081]'
-                        : 'border-[#1a1a1c] bg-[#0c0c0d] text-[#5a554f] hover:border-[#333132] hover:text-[#e3e3e5]'
+                        ? 'border-[#a39081]/60 bg-[#000000] text-[#a39081]'
+                        : 'border-[#1c1c1f] bg-[#000000] text-[#5a554f] hover:border-[#333132] hover:text-[#e3e3e5]'
                     }`}
                   >
                     <div className="flex justify-between items-start w-full">
@@ -221,7 +221,7 @@ export const OptionsControlPanel: React.FC = () => {
             <div className="space-y-4">
               <span className="block text-[9px] font-bold tracking-[0.25em] text-[#5a554f] uppercase">THICKNESS</span>
 
-              <div className="flex border border-[#1a1a1c] bg-[#0c0c0d] p-0.5 w-max rounded-none">
+              <div className="flex border border-[#1c1c1f] bg-[#000000] p-0.5 w-max rounded-none">
                 <button
                   type="button"
                   onClick={() => updateConfig({ useCustomThickness: false })}
@@ -253,7 +253,7 @@ export const OptionsControlPanel: React.FC = () => {
                     step="0.1"
                     value={config.relaxedHandMeasurement}
                     onChange={(e) => updateConfig({ relaxedHandMeasurement: parseFloat(e.target.value) || 0 })}
-                    className="w-32 bg-[#121213] border border-[#1a1a1c] text-white px-3 py-2 text-xs font-bold tracking-widest text-center focus:outline-none focus:border-[#a39081] rounded-none"
+                    className="w-32 bg-[#000000] border border-[#1c1c1f] text-white px-3 py-2 text-xs font-bold tracking-widest text-center focus:outline-none focus:border-[#a39081] rounded-none"
                   />
                   <span className="text-[9px] text-[#5a554f] tracking-widest uppercase font-bold">
                     {config.measurementSystem === 'metric' ? 'MM GRIP SPAN' : 'IN GRIP SPAN'}
@@ -270,7 +270,7 @@ export const OptionsControlPanel: React.FC = () => {
                     value={config.customThicknessInput}
                     onChange={(e) => updateConfig({ customThicknessInput: e.target.value })}
                     placeholder={config.measurementSystem === 'metric' ? 'e.g. 19.5mm' : 'e.g. 0.78"'}
-                    className="w-full max-w-xs bg-[#121213] border border-[#1a1a1c] text-white px-3 py-2 text-xs font-bold tracking-widest focus:outline-none focus:border-[#a39081] rounded-none"
+                    className="w-full max-w-xs bg-[#000000] border border-[#1c1c1f] text-white px-3 py-2 text-xs font-bold tracking-widest focus:outline-none focus:border-[#a39081] rounded-none"
                   />
                   <span className="text-[9px] text-[#5a554f] tracking-widest uppercase font-bold">
                     SPECIFIED OVERRIDE
@@ -284,11 +284,11 @@ export const OptionsControlPanel: React.FC = () => {
       </div>
 
       {/* SECTION 2: FRETBOARD */}
-      <div className="border border-[#1a1a1c] bg-[#0c0c0d] rounded-none overflow-hidden">
+      <div className="border border-[#1c1c1f] bg-[#000000] rounded-none overflow-hidden">
         <button
           id="category-header-fretboard"
           onClick={() => toggleCategory('fretboard')}
-          className="w-full flex items-center justify-between px-5 py-4 text-left font-bold text-[#e3e3e5] hover:bg-[#121213] transition-colors rounded-none font-sans"
+          className="w-full flex items-center justify-between px-5 py-4 text-left font-bold text-[#e3e3e5] hover:bg-[#000000] transition-colors rounded-none font-sans"
         >
           <div className="flex items-center gap-3">
             <span className="text-[9px] text-[#a39081] tracking-[0.25em] font-bold font-sans">02 /</span>
@@ -298,10 +298,10 @@ export const OptionsControlPanel: React.FC = () => {
         </button>
 
         {activeCategory === 'fretboard' && (
-          <div className="p-5 border-t border-[#1a1a1c] space-y-6">
+          <div className="p-5 border-t border-[#1c1c1f] space-y-6">
 
             {/* Concise Richlite Explanation */}
-            <div className="bg-[#111112] border-l-2 border-[#a39081] p-3 text-[10px] leading-relaxed text-[#5a554f] uppercase tracking-wider font-semibold rounded-none">
+            <div className="bg-[#050506] border-l-2 border-[#a39081] p-3 text-[10px] leading-relaxed text-[#5a554f] uppercase tracking-wider font-semibold rounded-none">
               Acoustically superior, stable, moisture-proof recycled paper tonewood composites. Exceptional speed and organic ebony tactile response.
             </div>
 
@@ -315,11 +315,11 @@ export const OptionsControlPanel: React.FC = () => {
                     onClick={() => updateConfig({ fretboardMaterial: opt.id })}
                     className={`relative p-2 rounded-none border transition-all duration-200 flex flex-col items-center gap-1.5 ${
                       config.fretboardMaterial === opt.id
-                        ? 'border-[#a39081]/60 bg-[#121213] text-[#a39081]'
-                        : 'border-[#1a1a1c] bg-[#0c0c0d] text-[#5a554f] hover:border-[#333132] hover:text-[#e3e3e5]'
+                        ? 'border-[#a39081]/60 bg-[#000000] text-[#a39081]'
+                        : 'border-[#1c1c1f] bg-[#000000] text-[#5a554f] hover:border-[#333132] hover:text-[#e3e3e5]'
                     }`}
                   >
-                    <div className="w-10 h-10 border border-[#1a1a1c] rounded-none shrink-0" style={{ backgroundColor: opt.color }} />
+                    <div className="w-10 h-10 border border-[#1c1c1f] rounded-none shrink-0" style={{ backgroundColor: opt.color }} />
                     <span className="text-[8px] font-bold tracking-wider text-center truncate w-full uppercase">{opt.name}</span>
                     {config.fretboardMaterial === opt.id && <Check className="w-3 h-3 text-[#a39081] absolute top-1 right-1" />}
                   </button>
@@ -328,12 +328,12 @@ export const OptionsControlPanel: React.FC = () => {
             </div>
 
             {/* Modular Fretboard system: Magnets & Pins */}
-            <div className="flex items-center justify-between border-t border-[#1a1a1c] pt-5 rounded-none">
+            <div className="flex items-center justify-between border-t border-[#1c1c1f] pt-5 rounded-none">
               <div className="flex flex-col">
                 <span className="text-[10px] text-[#e3e3e5] tracking-wider uppercase font-bold">MODULAR FRETBOARD SYSTEM</span>
                 <span className="text-[9px] text-[#5a554f] tracking-wider uppercase font-bold mt-1">Interchangeable magnetic PIN assembly (+$250)</span>
               </div>
-              <div className="flex border border-[#1a1a1c] bg-[#0c0c0d] p-0.5 rounded-none">
+              <div className="flex border border-[#1c1c1f] bg-[#000000] p-0.5 rounded-none">
                 <button
                   onClick={() => updateConfig({ modularFretboard: false, extraFretboards: [] })}
                   className={`px-3 py-1 text-[9px] font-bold tracking-widest uppercase transition-colors rounded-none ${
@@ -358,10 +358,10 @@ export const OptionsControlPanel: React.FC = () => {
             </div>
 
             {/* EDO / Fretless explanations */}
-            <div className="border-t border-[#1a1a1c] pt-5 space-y-4 rounded-none">
+            <div className="border-t border-[#1c1c1f] pt-5 space-y-4 rounded-none">
               <div className="flex justify-between items-center">
                 <span className="block text-[9px] font-bold tracking-[0.25em] text-[#5a554f] uppercase">EDO / FRETLESS</span>
-                <div className="flex border border-[#1a1a1c] bg-[#0c0c0d] p-0.5 rounded-none">
+                <div className="flex border border-[#1c1c1f] bg-[#000000] p-0.5 rounded-none">
                   <button
                     onClick={() => updateConfig({ isFretless: false })}
                     className={`px-3 py-1 text-[9px] font-bold tracking-widest uppercase transition-colors rounded-none ${
@@ -397,7 +397,7 @@ export const OptionsControlPanel: React.FC = () => {
                       max="72"
                       value={config.edoValue}
                       onChange={(e) => handleEdoChange(parseInt(e.target.value) || 12)}
-                      className="w-24 bg-[#121213] border border-[#1a1a1c] text-white px-3 py-1.5 text-xs font-bold tracking-widest text-center focus:outline-none focus:border-[#a39081] rounded-none"
+                      className="w-24 bg-[#000000] border border-[#1c1c1f] text-white px-3 py-1.5 text-xs font-bold tracking-widest text-center focus:outline-none focus:border-[#a39081] rounded-none"
                     />
                     <span className="text-[9px] text-[#5a554f] tracking-widest uppercase font-bold">
                       DIVISIONS (EDO)
@@ -405,17 +405,17 @@ export const OptionsControlPanel: React.FC = () => {
                   </div>
                 </div>
               ) : (
-                <div className="bg-[#111112] border-l-2 border-[#a39081] p-3 text-[10px] leading-relaxed text-[#5a554f] uppercase tracking-wider font-semibold rounded-none">
+                <div className="bg-[#050506] border-l-2 border-[#a39081] p-3 text-[10px] leading-relaxed text-[#5a554f] uppercase tracking-wider font-semibold rounded-none">
                   Fretless configuration: Flat, liquid slate playing surface providing microtonal sliding freedom with zero physical barriers.
                 </div>
               )}
             </div>
 
             {/* Scale Length & Multiscale inputs */}
-            <div className="border-t border-[#1a1a1c] pt-5 space-y-4 rounded-none">
+            <div className="border-t border-[#1c1c1f] pt-5 space-y-4 rounded-none">
               <div className="flex justify-between items-center">
                 <span className="block text-[9px] font-bold tracking-[0.25em] text-[#5a554f] uppercase">MULTISCALE LAYOUT</span>
-                <div className="flex border border-[#1a1a1c] bg-[#0c0c0d] p-0.5 rounded-none">
+                <div className="flex border border-[#1c1c1f] bg-[#000000] p-0.5 rounded-none">
                   <button
                     onClick={() => updateConfig({ multiscaleEnabled: false })}
                     className={`px-3 py-1 text-[9px] font-bold tracking-widest uppercase transition-colors rounded-none ${
@@ -447,7 +447,7 @@ export const OptionsControlPanel: React.FC = () => {
                     step="0.1"
                     value={config.bassScaleLength}
                     onChange={(e) => updateConfig({ bassScaleLength: parseFloat(e.target.value) || (isBass ? 34.0 : 25.5) })}
-                    className="w-full bg-[#121213] border border-[#1a1a1c] text-white px-3 py-2 text-xs font-bold tracking-widest focus:outline-none focus:border-[#a39081] rounded-none"
+                    className="w-full bg-[#000000] border border-[#1c1c1f] text-white px-3 py-2 text-xs font-bold tracking-widest focus:outline-none focus:border-[#a39081] rounded-none"
                   />
                 </div>
                 {config.multiscaleEnabled && (
@@ -458,7 +458,7 @@ export const OptionsControlPanel: React.FC = () => {
                       step="0.1"
                       value={config.trebleScaleLength}
                       onChange={(e) => updateConfig({ trebleScaleLength: parseFloat(e.target.value) || (isBass ? 32.0 : 25.0) })}
-                      className="w-full bg-[#121213] border border-[#1a1a1c] text-white px-3 py-2 text-xs font-bold tracking-widest focus:outline-none focus:border-[#a39081] rounded-none"
+                      className="w-full bg-[#000000] border border-[#1c1c1f] text-white px-3 py-2 text-xs font-bold tracking-widest focus:outline-none focus:border-[#a39081] rounded-none"
                     />
                   </div>
                 )}
@@ -498,8 +498,8 @@ export const OptionsControlPanel: React.FC = () => {
                     onClick={() => updateConfig({ fretboardInlay: style.id })}
                     className={`relative p-3 text-left rounded-none border transition-all duration-200 font-sans ${
                       config.fretboardInlay === style.id
-                        ? 'border-[#a39081]/60 bg-[#121213] text-[#a39081]'
-                        : 'border-[#1a1a1c] bg-[#0c0c0d] text-[#5a554f] hover:border-[#333132] hover:text-[#e3e3e5]'
+                        ? 'border-[#a39081]/60 bg-[#000000] text-[#a39081]'
+                        : 'border-[#1c1c1f] bg-[#000000] text-[#5a554f] hover:border-[#333132] hover:text-[#e3e3e5]'
                     }`}
                   >
                     <div className="flex justify-between items-center">
@@ -512,7 +512,7 @@ export const OptionsControlPanel: React.FC = () => {
             </div>
 
             {/* Compound Radius Custom Text Boxes */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-[#1a1a1c] pt-5 rounded-none">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-[#1c1c1f] pt-5 rounded-none">
               <div>
                 <span className="block text-[9px] font-bold tracking-[0.25em] text-[#5a554f] mb-1.5 uppercase">NUT RADIUS PROFILE</span>
                 <input
@@ -520,7 +520,7 @@ export const OptionsControlPanel: React.FC = () => {
                   value={config.radiusNut}
                   onChange={(e) => updateConfig({ radiusNut: e.target.value })}
                   placeholder={config.measurementSystem === 'metric' ? 'e.g. 241' : 'e.g. 9.5'}
-                  className="w-full bg-[#121213] border border-[#1a1a1c] text-white px-3 py-2 text-xs font-bold tracking-widest focus:outline-none focus:border-[#a39081] rounded-none"
+                  className="w-full bg-[#000000] border border-[#1c1c1f] text-white px-3 py-2 text-xs font-bold tracking-widest focus:outline-none focus:border-[#a39081] rounded-none"
                 />
               </div>
               <div>
@@ -530,17 +530,17 @@ export const OptionsControlPanel: React.FC = () => {
                   value={config.radiusLastFret}
                   onChange={(e) => updateConfig({ radiusLastFret: e.target.value })}
                   placeholder={config.measurementSystem === 'metric' ? 'e.g. 406' : 'e.g. 16.0'}
-                  className="w-full bg-[#121213] border border-[#1a1a1c] text-white px-3 py-2 text-xs font-bold tracking-widest focus:outline-none focus:border-[#a39081] rounded-none"
+                  className="w-full bg-[#000000] border border-[#1c1c1f] text-white px-3 py-2 text-xs font-bold tracking-widest focus:outline-none focus:border-[#a39081] rounded-none"
                 />
               </div>
             </div>
 
             {/* Scalloping controls */}
             {!config.isFretless && (
-              <div className="border-t border-[#1a1a1c] pt-5 space-y-4 rounded-none">
+              <div className="border-t border-[#1c1c1f] pt-5 space-y-4 rounded-none">
                 <div className="flex justify-between items-center">
                   <span className="block text-[9px] font-bold tracking-[0.25em] text-[#5a554f] uppercase">SCALLOPING</span>
-                  <div className="flex border border-[#1a1a1c] bg-[#0c0c0d] p-0.5 rounded-none">
+                  <div className="flex border border-[#1c1c1f] bg-[#000000] p-0.5 rounded-none">
                     <button
                       onClick={() => updateConfig({ scalloped: false })}
                       className={`px-3 py-1 text-[9px] font-bold tracking-widest uppercase transition-colors rounded-none ${
@@ -564,7 +564,7 @@ export const OptionsControlPanel: React.FC = () => {
                   </div>
                 </div>
                 {config.scalloped && (
-                  <div className="flex items-center gap-3 bg-[#111112] p-3 border border-[#1a1a1c] rounded-none">
+                  <div className="flex items-center gap-3 bg-[#050506] p-3 border border-[#1c1c1f] rounded-none">
                     <span className="text-[9px] text-[#5a554f] font-bold uppercase tracking-wider">SCALLOP INTEGRATION START FRET</span>
                     <input
                       type="number"
@@ -572,7 +572,7 @@ export const OptionsControlPanel: React.FC = () => {
                       max={config.numberOfFrets - 1}
                       value={config.scallopedStartFret}
                       onChange={(e) => updateConfig({ scallopedStartFret: parseInt(e.target.value) || 12 })}
-                      className="w-16 bg-[#0c0c0d] border border-[#1a1a1c] text-white px-2 py-1 text-[10px] font-bold tracking-widest text-center focus:outline-none focus:border-[#a39081] rounded-none"
+                      className="w-16 bg-[#000000] border border-[#1c1c1f] text-white px-2 py-1 text-[10px] font-bold tracking-widest text-center focus:outline-none focus:border-[#a39081] rounded-none"
                     />
                     <span className="text-[9.5px] text-[#a39081] font-bold uppercase tracking-wider ml-auto">
                       TO LAST FRET ({config.numberOfFrets})
@@ -584,7 +584,7 @@ export const OptionsControlPanel: React.FC = () => {
 
             {/* GET EXTRA FRETBOARD - MODULAR EXCLUSIVITY */}
             {config.modularFretboard && (
-              <div className="border-t border-[#1a1a1c] pt-6 space-y-4 rounded-none">
+              <div className="border-t border-[#1c1c1f] pt-6 space-y-4 rounded-none">
                 <div className="flex justify-between items-center">
                   <div className="flex flex-col">
                     <span className="text-[10px] text-[#e3e3e5] tracking-wider uppercase font-bold">ADDITIONAL MODULAR FRETBOARDS</span>
@@ -602,7 +602,7 @@ export const OptionsControlPanel: React.FC = () => {
                 </div>
 
                 {config.extraFretboards.map((board, index) => (
-                  <div key={board.id} className="border border-[#1a1a1c] bg-[#111112] p-4 space-y-4 rounded-none relative">
+                  <div key={board.id} className="border border-[#1c1c1f] bg-[#050506] p-4 space-y-4 rounded-none relative">
                     <div className="flex items-center justify-between border-b border-[#1c1c1f] pb-2 rounded-none">
                       <span className="text-[9px] text-[#a39081] tracking-[0.2em] font-bold uppercase">
                         MODULAR BOARD MODULE #0{index + 1}
@@ -622,7 +622,7 @@ export const OptionsControlPanel: React.FC = () => {
                         <select
                           value={board.material}
                           onChange={(e) => updateExtraFretboard(board.id, { material: e.target.value as any })}
-                          className="w-full bg-[#0c0c0d] border border-[#1a1a1c] text-[#e3e3e5] text-[10px] uppercase font-bold tracking-widest px-2 py-1.5 focus:outline-none focus:border-[#a39081] rounded-none"
+                          className="w-full bg-[#000000] border border-[#1c1c1f] text-[#e3e3e5] text-[10px] uppercase font-bold tracking-widest px-2 py-1.5 focus:outline-none focus:border-[#a39081] rounded-none"
                         >
                           {RICHLITE_OPTIONS.map(opt => (
                             <option key={opt.id} value={opt.id}>{opt.name.toUpperCase()}</option>
@@ -636,7 +636,7 @@ export const OptionsControlPanel: React.FC = () => {
                         <select
                           value={board.inlay}
                           onChange={(e) => updateExtraFretboard(board.id, { inlay: e.target.value as any })}
-                          className="w-full bg-[#0c0c0d] border border-[#1a1a1c] text-[#e3e3e5] text-[10px] uppercase font-bold tracking-widest px-2 py-1.5 focus:outline-none focus:border-[#a39081] rounded-none"
+                          className="w-full bg-[#000000] border border-[#1c1c1f] text-[#e3e3e5] text-[10px] uppercase font-bold tracking-widest px-2 py-1.5 focus:outline-none focus:border-[#a39081] rounded-none"
                         >
                           <option value="none">STEALTH (NONE)</option>
                           <option value="dots">MICRO DOTS</option>
@@ -658,7 +658,7 @@ export const OptionsControlPanel: React.FC = () => {
                               updateExtraFretboard(board.id, { isFretless: false, edoValue: parseInt(val) || 12 });
                             }
                           }}
-                          className="w-full bg-[#0c0c0d] border border-[#1a1a1c] text-[#e3e3e5] text-[10px] uppercase font-bold tracking-widest px-2 py-1.5 focus:outline-none focus:border-[#a39081] rounded-none"
+                          className="w-full bg-[#000000] border border-[#1c1c1f] text-[#e3e3e5] text-[10px] uppercase font-bold tracking-widest px-2 py-1.5 focus:outline-none focus:border-[#a39081] rounded-none"
                         >
                           <option value="12">12-EDO (STANDARD)</option>
                           <option value="19">19-EDO</option>
@@ -677,7 +677,7 @@ export const OptionsControlPanel: React.FC = () => {
                             max="72"
                             value={board.numberOfFrets}
                             onChange={(e) => updateExtraFretboard(board.id, { numberOfFrets: parseInt(e.target.value) || 24 })}
-                            className="w-full bg-[#0c0c0d] border border-[#1a1a1c] text-white text-[10px] font-bold tracking-widest px-2 py-1 focus:outline-none focus:border-[#a39081] rounded-none"
+                            className="w-full bg-[#000000] border border-[#1c1c1f] text-white text-[10px] font-bold tracking-widest px-2 py-1 focus:outline-none focus:border-[#a39081] rounded-none"
                           />
                         </div>
                       )}
@@ -691,11 +691,11 @@ export const OptionsControlPanel: React.FC = () => {
       </div>
 
       {/* SECTION 3: BODY SILHOUETTE & ERGONOMICS */}
-      <div className="border border-[#1a1a1c] bg-[#0c0c0d] rounded-none overflow-hidden">
+      <div className="border border-[#1c1c1f] bg-[#000000] rounded-none overflow-hidden">
         <button
           id="category-header-body"
           onClick={() => toggleCategory('body')}
-          className="w-full flex items-center justify-between px-5 py-4 text-left font-bold text-[#e3e3e5] hover:bg-[#121213] transition-colors rounded-none font-sans"
+          className="w-full flex items-center justify-between px-5 py-4 text-left font-bold text-[#e3e3e5] hover:bg-[#000000] transition-colors rounded-none font-sans"
         >
           <div className="flex items-center gap-3">
             <span className="text-[9px] text-[#a39081] tracking-[0.25em] font-bold font-sans">03 /</span>
@@ -705,7 +705,7 @@ export const OptionsControlPanel: React.FC = () => {
         </button>
 
         {activeCategory === 'body' && (
-          <div className="p-5 border-t border-[#1a1a1c] space-y-6">
+          <div className="p-5 border-t border-[#1c1c1f] space-y-6">
 
             {/* Seated Posture */}
             <div>
@@ -723,8 +723,8 @@ export const OptionsControlPanel: React.FC = () => {
                     onClick={() => updateConfig({ seatedPosition: pos.id })}
                     className={`relative p-3 text-left rounded-none border transition-all duration-200 font-sans ${
                       config.seatedPosition === pos.id
-                        ? 'border-[#a39081]/60 bg-[#121213] text-[#a39081]'
-                        : 'border-[#1a1a1c] bg-[#0c0c0d] text-[#5a554f] hover:border-[#333132] hover:text-[#e3e3e5]'
+                        ? 'border-[#a39081]/60 bg-[#000000] text-[#a39081]'
+                        : 'border-[#1c1c1f] bg-[#000000] text-[#5a554f] hover:border-[#333132] hover:text-[#e3e3e5]'
                     }`}
                   >
                     <div className="flex justify-between items-center">
@@ -753,7 +753,7 @@ export const OptionsControlPanel: React.FC = () => {
             </div>
 
             {/* Concise, non-cluttered Ergonomic Report card */}
-            <div className="border border-[#1a1a1c] bg-[#111112] p-4 rounded-none space-y-2">
+            <div className="border border-[#1c1c1f] bg-[#050506] p-4 rounded-none space-y-2">
               <div className="flex items-center gap-2 text-[8px] tracking-[0.25em] text-[#a39081] font-black uppercase">
                 <Sliders className="w-3.5 h-3.5" />
                 <span>ERGONOMIC RECOMMENDATION</span>
@@ -777,7 +777,7 @@ export const OptionsControlPanel: React.FC = () => {
             </div>
 
             {/* Manual shape selection */}
-            <div className="border-t border-[#1a1a1c] pt-5">
+            <div className="border-t border-[#1c1c1f] pt-5">
               <span className="block text-[9px] font-bold tracking-[0.25em] text-[#5a554f] mb-3 uppercase">MANUAL OVERRIDE SHAPE</span>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 {Object.values(BODY_SHAPES).map((shape) => (
@@ -786,8 +786,8 @@ export const OptionsControlPanel: React.FC = () => {
                     onClick={() => updateConfig({ bodyShape: shape.id as any })}
                     className={`relative p-3.5 text-left rounded-none border transition-all duration-200 font-sans ${
                       config.bodyShape === shape.id
-                        ? 'border-[#a39081]/60 bg-[#121213] text-[#a39081]'
-                        : 'border-[#1a1a1c] bg-[#0c0c0d] text-[#5a554f] hover:border-[#333132] hover:text-[#e3e3e5]'
+                        ? 'border-[#a39081]/60 bg-[#000000] text-[#a39081]'
+                        : 'border-[#1c1c1f] bg-[#000000] text-[#5a554f] hover:border-[#333132] hover:text-[#e3e3e5]'
                     }`}
                   >
                     <div className="flex justify-between items-start mb-1.5">
@@ -812,8 +812,8 @@ export const OptionsControlPanel: React.FC = () => {
                     onClick={() => updateConfig({ bodyWood: wood.id as any })}
                     className={`relative p-3.5 text-left rounded-none border transition-all duration-200 font-sans ${
                       config.bodyWood === wood.id
-                        ? 'border-[#a39081]/60 bg-[#121213] text-[#a39081]'
-                        : 'border-[#1a1a1c] bg-[#0c0c0d] text-[#5a554f] hover:border-[#333132] hover:text-[#e3e3e5]'
+                        ? 'border-[#a39081]/60 bg-[#000000] text-[#a39081]'
+                        : 'border-[#1c1c1f] bg-[#000000] text-[#5a554f] hover:border-[#333132] hover:text-[#e3e3e5]'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1.5">
@@ -835,11 +835,11 @@ export const OptionsControlPanel: React.FC = () => {
       </div>
 
       {/* SECTION 4: COATINGS & LACQUER */}
-      <div className="border border-[#1a1a1c] bg-[#0c0c0d] rounded-none overflow-hidden">
+      <div className="border border-[#1c1c1f] bg-[#000000] rounded-none overflow-hidden">
         <button
           id="category-header-finish"
           onClick={() => toggleCategory('finish')}
-          className="w-full flex items-center justify-between px-5 py-4 text-left font-bold text-[#e3e3e5] hover:bg-[#121213] transition-colors rounded-none font-sans"
+          className="w-full flex items-center justify-between px-5 py-4 text-left font-bold text-[#e3e3e5] hover:bg-[#000000] transition-colors rounded-none font-sans"
         >
           <div className="flex items-center gap-3">
             <span className="text-[9px] text-[#a39081] tracking-[0.25em] font-bold font-sans">04 /</span>
@@ -849,7 +849,7 @@ export const OptionsControlPanel: React.FC = () => {
         </button>
 
         {activeCategory === 'finish' && (
-          <div className="p-5 border-t border-[#1a1a1c]">
+          <div className="p-5 border-t border-[#1c1c1f]">
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {FINISH_PRESETS.map((finish) => (
                 <button
@@ -857,8 +857,8 @@ export const OptionsControlPanel: React.FC = () => {
                   onClick={() => updateConfig({ finishPreset: finish.id })}
                   className={`relative p-3 text-left rounded-none border transition-all duration-200 font-sans ${
                     config.finishPreset === finish.id
-                      ? 'border-[#a39081]/60 bg-[#121213] text-[#a39081]'
-                      : 'border-[#1a1a1c] bg-[#0c0c0d] text-[#5a554f] hover:border-[#333132] hover:text-[#e3e3e5]'
+                      ? 'border-[#a39081]/60 bg-[#000000] text-[#a39081]'
+                      : 'border-[#1c1c1f] bg-[#000000] text-[#5a554f] hover:border-[#333132] hover:text-[#e3e3e5]'
                   }`}
                 >
                   <div className="flex items-center gap-2 mb-2">
@@ -888,11 +888,11 @@ export const OptionsControlPanel: React.FC = () => {
       </div>
 
       {/* SECTION 5: PLATINGS & HARDWARE ACCENTS */}
-      <div className="border border-[#1a1a1c] bg-[#0c0c0d] rounded-none overflow-hidden">
+      <div className="border border-[#1c1c1f] bg-[#000000] rounded-none overflow-hidden">
         <button
           id="category-header-hardware"
           onClick={() => toggleCategory('hardware')}
-          className="w-full flex items-center justify-between px-5 py-4 text-left font-bold text-[#e3e3e5] hover:bg-[#121213] transition-colors rounded-none font-sans"
+          className="w-full flex items-center justify-between px-5 py-4 text-left font-bold text-[#e3e3e5] hover:bg-[#000000] transition-colors rounded-none font-sans"
         >
           <div className="flex items-center gap-3">
             <span className="text-[9px] text-[#a39081] tracking-[0.25em] font-bold font-sans">05 /</span>
@@ -902,7 +902,7 @@ export const OptionsControlPanel: React.FC = () => {
         </button>
 
         {activeCategory === 'hardware' && (
-          <div className="p-5 border-t border-[#1a1a1c] space-y-6">
+          <div className="p-5 border-t border-[#1c1c1f] space-y-6">
 
             {/* Metallic Plating */}
             <div>
@@ -914,8 +914,8 @@ export const OptionsControlPanel: React.FC = () => {
                     onClick={() => updateConfig({ hardwareColor: color.id as any })}
                     className={`relative p-3.5 text-left rounded-none border transition-all duration-200 font-sans ${
                       config.hardwareColor === color.id
-                        ? 'border-[#a39081]/60 bg-[#121213] text-[#a39081]'
-                        : 'border-[#1a1a1c] bg-[#0c0c0d] text-[#5a554f] hover:border-[#333132] hover:text-[#e3e3e5]'
+                        ? 'border-[#a39081]/60 bg-[#000000] text-[#a39081]'
+                        : 'border-[#1c1c1f] bg-[#000000] text-[#5a554f] hover:border-[#333132] hover:text-[#e3e3e5]'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1.5">
@@ -939,7 +939,7 @@ export const OptionsControlPanel: React.FC = () => {
               <select
                 value={config.bridgeType}
                 onChange={(e) => updateConfig({ bridgeType: e.target.value })}
-                className="w-full bg-[#121213] border border-[#1a1a1c] text-white text-[11px] font-bold tracking-widest px-3 py-2.5 uppercase focus:outline-none focus:border-[#a39081] rounded-none"
+                className="w-full bg-[#000000] border border-[#1c1c1f] text-white text-[11px] font-bold tracking-widest px-3 py-2.5 uppercase focus:outline-none focus:border-[#a39081] rounded-none"
               >
                 <option value="fixed_hardtail">SOLID BASALT-COUPLING FIXED HARDTAIL (STANDARD)</option>
                 <option value="thru_body">HIGH-TENSION STRING THRU BODY RECESSED RAILS</option>
@@ -953,7 +953,7 @@ export const OptionsControlPanel: React.FC = () => {
               <select
                 value={config.tunerType}
                 onChange={(e) => updateConfig({ tunerType: e.target.value })}
-                className="w-full bg-[#121213] border border-[#1a1a1c] text-white text-[11px] font-bold tracking-widest px-3 py-2.5 uppercase focus:outline-none focus:border-[#a39081] rounded-none"
+                className="w-full bg-[#000000] border border-[#1c1c1f] text-white text-[11px] font-bold tracking-widest px-3 py-2.5 uppercase focus:outline-none focus:border-[#a39081] rounded-none"
               >
                 <option value="locking_standard">1:21 LVI INDUSTRIAL BACK-LOCKING TUNERS</option>
                 <option value="headless_knurled">COAXIAL REAR BRUTALIST HEADLESS CYLINDERS</option>
@@ -967,7 +967,7 @@ export const OptionsControlPanel: React.FC = () => {
               <select
                 value={config.knobType}
                 onChange={(e) => updateConfig({ knobType: e.target.value })}
-                className="w-full bg-[#121213] border border-[#1a1a1c] text-white text-[11px] font-bold tracking-widest px-3 py-2.5 uppercase focus:outline-none focus:border-[#a39081] rounded-none"
+                className="w-full bg-[#000000] border border-[#1c1c1f] text-white text-[11px] font-bold tracking-widest px-3 py-2.5 uppercase focus:outline-none focus:border-[#a39081] rounded-none"
               >
                 <option value="knurled_dome">KNURLED INDUSTRIAL COAL-BLACK SOLID DOME</option>
                 <option value="skirted_brutalist">FLAT SKIRTED BRUTALIST MILLED BASALT CONE</option>
@@ -981,7 +981,7 @@ export const OptionsControlPanel: React.FC = () => {
               <select
                 value={config.nutType}
                 onChange={(e) => updateConfig({ nutType: e.target.value })}
-                className="w-full bg-[#121213] border border-[#1a1a1c] text-white text-[11px] font-bold tracking-widest px-3 py-2.5 uppercase focus:outline-none focus:border-[#a39081] rounded-none"
+                className="w-full bg-[#000000] border border-[#1c1c1f] text-white text-[11px] font-bold tracking-widest px-3 py-2.5 uppercase focus:outline-none focus:border-[#a39081] rounded-none"
               >
                 <option value="graph_tech_tusq">GRAPH TECH BLACK TUSQ SLEEK SLIDING COMPONENT</option>
                 <option value="zero_fret_stainless">INTEGRATED STAINLESS-STEEL ZERO FRET SADDLE</option>
@@ -999,8 +999,8 @@ export const OptionsControlPanel: React.FC = () => {
                     onClick={() => updateConfig({ pickguardStyle: style.id as any })}
                     className={`relative p-3 text-left rounded-none border transition-all duration-200 font-sans ${
                       config.pickguardStyle === style.id
-                        ? 'border-[#a39081]/60 bg-[#121213] text-[#a39081]'
-                        : 'border-[#1a1a1c] bg-[#0c0c0d] text-[#5a554f] hover:border-[#333132] hover:text-[#e3e3e5]'
+                        ? 'border-[#a39081]/60 bg-[#000000] text-[#a39081]'
+                        : 'border-[#1c1c1f] bg-[#000000] text-[#5a554f] hover:border-[#333132] hover:text-[#e3e3e5]'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1">
@@ -1022,11 +1022,11 @@ export const OptionsControlPanel: React.FC = () => {
       </div>
 
       {/* SECTION 6: COILS, CAPACITORS & PREAMPS */}
-      <div className="border border-[#1a1a1c] bg-[#0c0c0d] rounded-none overflow-hidden">
+      <div className="border border-[#1c1c1f] bg-[#000000] rounded-none overflow-hidden">
         <button
           id="category-header-electronics"
           onClick={() => toggleCategory('electronics')}
-          className="w-full flex items-center justify-between px-5 py-4 text-left font-bold text-[#e3e3e5] hover:bg-[#121213] transition-colors rounded-none font-sans"
+          className="w-full flex items-center justify-between px-5 py-4 text-left font-bold text-[#e3e3e5] hover:bg-[#000000] transition-colors rounded-none font-sans"
         >
           <div className="flex items-center gap-3">
             <span className="text-[9px] text-[#a39081] tracking-[0.25em] font-bold font-sans">06 /</span>
@@ -1036,7 +1036,7 @@ export const OptionsControlPanel: React.FC = () => {
         </button>
 
         {activeCategory === 'electronics' && (
-          <div className="p-5 border-t border-[#1a1a1c] space-y-6">
+          <div className="p-5 border-t border-[#1c1c1f] space-y-6">
 
             {/* Pickups Layout */}
             <div>
@@ -1048,8 +1048,8 @@ export const OptionsControlPanel: React.FC = () => {
                     onClick={() => updateConfig({ pickupsLayout: layout.id as any })}
                     className={`relative p-3.5 text-left rounded-none border transition-all duration-200 font-sans ${
                       config.pickupsLayout === layout.id
-                        ? 'border-[#a39081]/60 bg-[#121213] text-[#a39081]'
-                        : 'border-[#1a1a1c] bg-[#0c0c0d] text-[#5a554f] hover:border-[#333132] hover:text-[#e3e3e5]'
+                        ? 'border-[#a39081]/60 bg-[#000000] text-[#a39081]'
+                        : 'border-[#1c1c1f] bg-[#000000] text-[#5a554f] hover:border-[#333132] hover:text-[#e3e3e5]'
                     }`}
                   >
                     <div className="flex justify-between items-start mb-1.5">
@@ -1068,12 +1068,12 @@ export const OptionsControlPanel: React.FC = () => {
             </div>
 
             {/* Active Preamp Upgrade */}
-            <div className="flex items-center justify-between border-t border-[#1a1a1c] pt-5 rounded-none">
+            <div className="flex items-center justify-between border-t border-[#1c1c1f] pt-5 rounded-none">
               <div className="flex flex-col">
                 <span className="text-[10px] text-[#e3e3e5] tracking-wider uppercase font-bold">LVI 18V LOW-IMPEDANCE ACTIVE PREAMPLIFIER</span>
                 <span className="text-[9px] text-[#5a554f] tracking-wider uppercase font-bold mt-1">High-fidelity clean gain & onboard active EQ (+$95)</span>
               </div>
-              <div className="flex border border-[#1a1a1c] bg-[#0c0c0d] p-0.5 rounded-none">
+              <div className="flex border border-[#1c1c1f] bg-[#000000] p-0.5 rounded-none">
                 <button
                   onClick={() => updateConfig({ activePreamp: false })}
                   className={`px-3 py-1 text-[9px] font-bold tracking-widest uppercase transition-colors rounded-none ${
@@ -1103,7 +1103,7 @@ export const OptionsControlPanel: React.FC = () => {
               <select
                 value={config.toneCapacitor}
                 onChange={(e) => updateConfig({ toneCapacitor: e.target.value })}
-                className="w-full bg-[#121213] border border-[#1a1a1c] text-white text-[11px] font-bold tracking-widest px-3 py-2.5 uppercase focus:outline-none focus:border-[#a39081] rounded-none"
+                className="w-full bg-[#000000] border border-[#1c1c1f] text-white text-[11px] font-bold tracking-widest px-3 py-2.5 uppercase focus:outline-none focus:border-[#a39081] rounded-none"
               >
                 <option value="orange_drop_022">SPRAGUE ORANGE DROP .022UF (CREAMY TREBLE ROLLOFF)</option>
                 <option value="bumblebee_paper">LVI BUMBLEBEE PAPER-IN-OIL .047UF (VINTAGE WARM RESISTANCE)</option>

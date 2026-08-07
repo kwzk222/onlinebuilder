@@ -80,12 +80,12 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
         const duration = 1200; // 1.2s luxury click glide
         const progress = Math.min(1, elapsed / duration);
 
-        // Cubic ease-in-out curve
-        const easeInOutCubic = progress < 0.5
-          ? 4 * progress * progress * progress
-          : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+        // Quadratic ease-in-out curve (softer, less intense)
+        const easeInOutQuad = progress < 0.5
+          ? 2 * progress * progress
+          : 1 - Math.pow(-2 * progress + 2, 2) / 2;
 
-        setCurrentTick(nav.startTick + (nav.targetTick - nav.startTick) * easeInOutCubic);
+        setCurrentTick(nav.startTick + (nav.targetTick - nav.startTick) * easeInOutQuad);
 
         if (progress >= 1) {
           nav.active = false;
