@@ -303,7 +303,7 @@ export function calculateTotalPrice(config: GuitarConfig): {
   }
 
   if (config.activePreamp) {
-    breakdown.push({ category: 'Electronics Upgrade', name: 'Luxe Active Preamp', price: 95 });
+    breakdown.push({ category: 'Electronics Upgrade', name: 'LVI Active Preamp', price: 95 });
   }
 
   if (config.multiscaleEnabled) {

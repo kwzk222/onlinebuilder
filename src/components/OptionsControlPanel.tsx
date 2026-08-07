@@ -955,7 +955,7 @@ export const OptionsControlPanel: React.FC = () => {
                 onChange={(e) => updateConfig({ tunerType: e.target.value })}
                 className="w-full bg-[#121213] border border-[#1a1a1c] text-white text-[11px] font-bold tracking-widest px-3 py-2.5 uppercase focus:outline-none focus:border-[#a39081] rounded-none"
               >
-                <option value="locking_standard">1:21 LUXE INDUSTRIAL BACK-LOCKING TUNERS</option>
+                <option value="locking_standard">1:21 LVI INDUSTRIAL BACK-LOCKING TUNERS</option>
                 <option value="headless_knurled">COAXIAL REAR BRUTALIST HEADLESS CYLINDERS</option>
                 <option value="traditional_closed">HERITAGE FINELY CALIBRATED CLOSED GEARS</option>
               </select>
@@ -1070,7 +1070,7 @@ export const OptionsControlPanel: React.FC = () => {
             {/* Active Preamp Upgrade */}
             <div className="flex items-center justify-between border-t border-[#1a1a1c] pt-5 rounded-none">
               <div className="flex flex-col">
-                <span className="text-[10px] text-[#e3e3e5] tracking-wider uppercase font-bold">LUXE 18V LOW-IMPEDANCE ACTIVE PREAMPLIFIER</span>
+                <span className="text-[10px] text-[#e3e3e5] tracking-wider uppercase font-bold">LVI 18V LOW-IMPEDANCE ACTIVE PREAMPLIFIER</span>
                 <span className="text-[9px] text-[#5a554f] tracking-wider uppercase font-bold mt-1">High-fidelity clean gain & onboard active EQ (+$95)</span>
               </div>
               <div className="flex border border-[#1a1a1c] bg-[#0c0c0d] p-0.5 rounded-none">
@@ -1106,7 +1106,7 @@ export const OptionsControlPanel: React.FC = () => {
                 className="w-full bg-[#121213] border border-[#1a1a1c] text-white text-[11px] font-bold tracking-widest px-3 py-2.5 uppercase focus:outline-none focus:border-[#a39081] rounded-none"
               >
                 <option value="orange_drop_022">SPRAGUE ORANGE DROP .022UF (CREAMY TREBLE ROLLOFF)</option>
-                <option value="bumblebee_paper">LUXE BUMBLEBEE PAPER-IN-OIL .047UF (VINTAGE WARM RESISTANCE)</option>
+                <option value="bumblebee_paper">LVI BUMBLEBEE PAPER-IN-OIL .047UF (VINTAGE WARM RESISTANCE)</option>
                 <option value="silver_mica">SOVIET MILITARY SILVER MICA .01UF (GLASSY MODERN HIGHS)</option>
               </select>
             </div>
