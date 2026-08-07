@@ -77,7 +77,7 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
       const nav = navAnimRef.current;
       if (nav.active) {
         const elapsed = Date.now() - nav.startTime;
-        const duration = 1200; // 1.2s luxury click glide
+        const duration = 800; // Snappier 800ms luxury click glide
         const progress = Math.min(1, elapsed / duration);
 
         // Quadratic ease-in-out curve (softer, less intense)

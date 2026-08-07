@@ -10,7 +10,6 @@ const App: React.FC = () => {
   const [transitionState, setTransitionState] = useState<{
     active: boolean;
     target: 'dashboard' | 'startup' | null;
-    instrumentType?: 'guitar' | 'bass';
   }>({
     active: false,
     target: null
@@ -19,16 +18,21 @@ const App: React.FC = () => {
   const updateConfig = useGuitarStore((state) => state.updateConfig);
 
   const handleSelectInstrument = (type: 'guitar' | 'bass') => {
-    // Start transition
+    // 1. Immediately configure the store
+    updateConfig({ instrumentType: type });
+
+    // 2. Start the transition overlay
     setTransitionState({
       active: true,
-      target: 'dashboard',
-      instrumentType: type
+      target: 'dashboard'
     });
+
+    // 3. IMMEDIATELY mount the dashboard so the 3D model starts loading in the background
+    setShowDashboard(true);
   };
 
   const handleReturnToStartup = () => {
-    // Start transition
+    // 1. Start transition overlay
     setTransitionState({
       active: true,
       target: 'startup'
@@ -37,25 +41,32 @@ const App: React.FC = () => {
 
   useEffect(() => {
     if (transitionState.active) {
-      const timer = setTimeout(() => {
-        if (transitionState.target === 'dashboard') {
-          updateConfig({ instrumentType: transitionState.instrumentType });
-          setShowDashboard(true);
-        } else if (transitionState.target === 'startup') {
-          setShowDashboard(false);
-        }
-
-        // Hide transition overlay after a brief moment to allow screen to mount
+      if (transitionState.target === 'dashboard') {
+        // Since dashboard was mounted immediately, just wait for the animation to finish
         const hideTimer = setTimeout(() => {
           setTransitionState({ active: false, target: null });
+        }, 1200); // Allow 1.2s for beautiful logo animation and background load
+        return () => clearTimeout(hideTimer);
+      }
+
+      if (transitionState.target === 'startup') {
+        // For return, wait 500ms (until overlay is opaque) to unmount dashboard
+        const swapTimer = setTimeout(() => {
+          setShowDashboard(false);
         }, 500);
 
-        return () => clearTimeout(hideTimer);
-      }, 1000); // Brief moment for the expanding logo animation
+        // Hide overlay after animation finishes
+        const hideTimer = setTimeout(() => {
+          setTransitionState({ active: false, target: null });
+        }, 1200);
 
-      return () => clearTimeout(timer);
+        return () => {
+          clearTimeout(swapTimer);
+          clearTimeout(hideTimer);
+        };
+      }
     }
-  }, [transitionState.active, transitionState.target, transitionState.instrumentType, updateConfig]);
+  }, [transitionState.active, transitionState.target]);
 
   return (
     <div className="w-full min-h-screen bg-[#000000]">
@@ -94,17 +105,14 @@ const App: React.FC = () => {
             className="fixed inset-0 z-50 bg-[#000000] flex flex-col items-center justify-center pointer-events-auto"
           >
             <div className="flex flex-col items-center justify-center">
-              <span className="text-[8px] tracking-[0.8em] text-[#a39081] font-black uppercase mb-3 animate-pulse">
-                INITIALIZING CORE
-              </span>
               <motion.h1
                 initial={{ opacity: 0, scale: 0.95, letterSpacing: '0.4em' }}
-                animate={{ opacity: 1, scale: 1, letterSpacing: '0.7em' }}
-                exit={{ opacity: 0, scale: 1.02, letterSpacing: '0.8em' }}
-                transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-                className="text-lg md:text-xl font-black text-[#e3e3e5] uppercase text-center"
+                animate={{ opacity: 1, scale: 1, letterSpacing: '0.8em' }}
+                exit={{ opacity: 0, scale: 1.02, letterSpacing: '0.9em' }}
+                transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
+                className="text-3xl md:text-4xl font-black text-[#e3e3e5] uppercase text-center"
               >
-                LVI Custom
+                LVI
               </motion.h1>
             </div>
           </motion.div>
