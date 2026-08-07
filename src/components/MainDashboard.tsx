@@ -29,6 +29,23 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ onReturnToStartup 
   const [showSaveLoadModal, setShowSaveLoadModal] = useState(false);
   const [newBuildName, setNewBuildName] = useState('');
 
+  // Placeholder CAPTCHA states
+  const [captchaCode, setCaptchaCode] = useState('');
+  const [captchaInput, setCaptchaInput] = useState('');
+
+  useEffect(() => {
+    generateCaptcha();
+  }, []);
+
+  const generateCaptcha = () => {
+    const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+    let code = '';
+    for (let i = 0; i < 4; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    setCaptchaCode(code);
+  };
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const bCode = params.get('b');
@@ -51,6 +68,13 @@ export const MainDashboard: React.FC<MainDashboardProps> = ({ onReturnToStartup 
     e.preventDefault();
     if (!name.trim() || !email.trim()) {
       alert('Please provide your name and email address to proceed.');
+      return;
+    }
+
+    if (captchaInput.trim().toUpperCase() !== captchaCode) {
+      alert('Security Verification Failed. Please enter the correct CAPTCHA code.');
+      generateCaptcha();
+      setCaptchaInput('');
       return;
     }
 
@@ -119,7 +143,10 @@ ${breakdown.map(item => `- ${item.category} (${item.name}): +$${item.price}.00 U
 TOTAL PRICE: $${total.toLocaleString()}.00 USD
 ==========================================================`;
 
-    const blob = new Blob([orderDetails], { type: 'text/plain' });
+    // Generate text file in-memory using a byte stream / buffer
+    const encoder = new TextEncoder();
+    const dataBuffer = encoder.encode(orderDetails);
+    const blob = new Blob([dataBuffer], { type: 'application/octet-stream' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -219,6 +246,7 @@ TOTAL PRICE: $${total.toLocaleString()}.00 USD
                 <input
                   type="text"
                   required
+                  maxLength={1000}
                   placeholder="SLOT NAME..."
                   value={newBuildName}
                   onChange={(e) => setNewBuildName(e.target.value)}
@@ -296,6 +324,7 @@ TOTAL PRICE: $${total.toLocaleString()}.00 USD
                   <input
                     type="text"
                     required
+                    maxLength={1000}
                     placeholder=""
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -309,6 +338,7 @@ TOTAL PRICE: $${total.toLocaleString()}.00 USD
                   <input
                     type="email"
                     required
+                    maxLength={1000}
                     placeholder=""
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -323,11 +353,47 @@ TOTAL PRICE: $${total.toLocaleString()}.00 USD
                 </label>
                 <textarea
                   rows={4}
+                  maxLength={1000}
                   placeholder=""
                   value={specialInstructions}
                   onChange={(e) => setSpecialInstructions(e.target.value)}
                   className="w-full bg-[#000000] border border-[#1c1c1f] rounded-none p-3 text-[10px] uppercase tracking-wider font-bold text-[#e3e3e5] focus:outline-none focus:border-[#a39081] resize-none"
                 />
+              </div>
+
+              {/* PLACEHOLDER CAPTCHA ELEMENT */}
+              <div className="border border-[#1c1c1f] bg-[#000000] p-4 flex flex-col sm:flex-row items-center gap-4 rounded-none">
+                <div className="flex flex-col">
+                  <span className="text-[8px] tracking-[0.25em] text-[#a39081] font-black uppercase mb-1">
+                    SECURITY PROTOCOL
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="bg-[#050506] border border-[#1c1c1f] px-3 py-1 font-mono text-sm tracking-[0.3em] text-[#e3e3e5] font-black uppercase select-none">
+                      {captchaCode}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={generateCaptcha}
+                      className="text-[8px] text-[#5a554f] hover:text-[#a39081] font-mono tracking-widest uppercase cursor-pointer"
+                    >
+                      [REGEN]
+                    </button>
+                  </div>
+                </div>
+                <div className="flex-1 w-full">
+                  <label className="block text-[8px] text-[#5a554f] tracking-[0.2em] uppercase font-black mb-1">
+                    VERIFICATION CODE
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    maxLength={4}
+                    placeholder="ENTER CODE..."
+                    value={captchaInput}
+                    onChange={(e) => setCaptchaInput(e.target.value.toUpperCase())}
+                    className="w-full bg-[#050506] border border-[#1c1c1f] rounded-none px-3 py-1.5 text-xs font-mono tracking-widest text-[#e3e3e5] focus:outline-none focus:border-[#a39081]"
+                  />
+                </div>
               </div>
 
               <button

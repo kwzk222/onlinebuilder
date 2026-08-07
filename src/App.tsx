@@ -15,6 +15,8 @@ const App: React.FC = () => {
     target: null
   });
 
+  const [loadingPercent, setLoadingPercent] = useState(0);
+
   const updateConfig = useGuitarStore((state) => state.updateConfig);
 
   const handleSelectInstrument = (type: 'guitar' | 'bass') => {
@@ -39,26 +41,42 @@ const App: React.FC = () => {
     });
   };
 
+  // Sleek progress bar percentage tick count simulator
+  useEffect(() => {
+    if (transitionState.active && transitionState.target === 'dashboard') {
+      setLoadingPercent(0);
+      const interval = setInterval(() => {
+        setLoadingPercent((prev) => {
+          if (prev >= 100) {
+            clearInterval(interval);
+            return 100;
+          }
+          return prev + Math.floor(Math.random() * 12) + 6; // Fast, realistic tick loader
+        });
+      }, 50);
+      return () => clearInterval(interval);
+    }
+  }, [transitionState.active, transitionState.target]);
+
   useEffect(() => {
     if (transitionState.active) {
       if (transitionState.target === 'dashboard') {
-        // Since dashboard was mounted immediately, just wait for the animation to finish
         const hideTimer = setTimeout(() => {
           setTransitionState({ active: false, target: null });
-        }, 1200); // Allow 1.2s for beautiful logo animation and background load
+        }, 1200); // 1.2s total presentation time
         return () => clearTimeout(hideTimer);
       }
 
       if (transitionState.target === 'startup') {
-        // For return, wait 500ms (until overlay is opaque) to unmount dashboard
+        // Instant overlay coverage prevents dashboard flash. Switch to startup at 350ms.
         const swapTimer = setTimeout(() => {
           setShowDashboard(false);
-        }, 500);
+        }, 350);
 
-        // Hide overlay after animation finishes
+        // Hide transition screen after total duration
         const hideTimer = setTimeout(() => {
           setTransitionState({ active: false, target: null });
-        }, 1200);
+        }, 1000);
 
         return () => {
           clearTimeout(swapTimer);
@@ -98,7 +116,8 @@ const App: React.FC = () => {
       <AnimatePresence>
         {transitionState.active && (
           <motion.div
-            initial={{ opacity: 0 }}
+            // Instant cover on return prevents any dashboard frame flashing
+            initial={{ opacity: transitionState.target === 'startup' ? 1 : 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
@@ -114,6 +133,21 @@ const App: React.FC = () => {
               >
                 LVI
               </motion.h1>
+
+              {/* SLEEK PROGRESS BAR & PROGRESS TEXT */}
+              {transitionState.target === 'dashboard' && (
+                <div className="mt-8 flex flex-col items-center gap-2">
+                  <div className="w-48 h-[2px] bg-[#1c1c1f] relative overflow-hidden">
+                    <motion.div
+                      className="h-full bg-[#a39081]"
+                      style={{ width: `${Math.min(100, loadingPercent)}%` }}
+                    />
+                  </div>
+                  <span className="text-[8px] font-mono tracking-[0.25em] text-[#5a554f]">
+                    LOADING PROTOCOL ... {Math.min(100, loadingPercent)}%
+                  </span>
+                </div>
+              )}
             </div>
           </motion.div>
         )}
