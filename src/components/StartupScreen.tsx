@@ -48,40 +48,87 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
     };
   }, [windowWidth]);
 
-  // Silky smooth interpolation loop for ticks
+  // Dual-mode smooth interpolation loop
+  const navAnimRef = useRef<{
+    active: boolean;
+    startTime: number;
+    startTick: number;
+    targetTick: number;
+  }>({
+    active: false,
+    startTime: 0,
+    startTick: 0,
+    targetTick: 0,
+  });
+
+  const triggerNavAnimation = (target: number) => {
+    navAnimRef.current = {
+      active: true,
+      startTime: Date.now(),
+      startTick: currentTick,
+      targetTick: target,
+    };
+    setTargetTick(target);
+  };
+
   useEffect(() => {
     let animId: number;
     const animate = () => {
-      setCurrentTick((prev) => {
-        const diff = targetTick - prev;
-        if (Math.abs(diff) < 0.005) {
-          return targetTick;
+      const nav = navAnimRef.current;
+      if (nav.active) {
+        const elapsed = Date.now() - nav.startTime;
+        const duration = 1200; // 1.2s luxury click glide
+        const progress = Math.min(1, elapsed / duration);
+
+        // Cubic ease-in-out curve
+        const easeInOutCubic = progress < 0.5
+          ? 4 * progress * progress * progress
+          : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+        setCurrentTick(nav.startTick + (nav.targetTick - nav.startTick) * easeInOutCubic);
+
+        if (progress >= 1) {
+          nav.active = false;
         }
-        return prev + diff * 0.12; // satisfying, luxurious decelerating ease-out glide
-      });
+      } else {
+        setCurrentTick((prev) => {
+          const diff = targetTick - prev;
+          if (Math.abs(diff) < 0.005) {
+            return targetTick;
+          }
+          return prev + diff * 0.12; // satisfying, luxurious decelerating ease-out glide
+        });
+      }
       animId = requestAnimationFrame(animate);
     };
     animId = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(animId);
-  }, [targetTick]);
+  }, [targetTick, currentTick]);
 
   // Wheel interceptor for perfect tick-based navigation
   const deltaAccumulator = useRef(0);
   const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    // Interrupt menu navigation animation if user scrolls manually
+    navAnimRef.current.active = false;
+
     let dy = e.deltaY;
     if (e.deltaMode === 1) dy *= 33; // lines
     if (e.deltaMode === 2) dy *= 400; // pages
 
     deltaAccumulator.current += dy;
 
-    if (deltaAccumulator.current >= 100) {
-      const ticks = Math.floor(deltaAccumulator.current / 100);
+    // Slow down scrolling while navigating inside the horizontal Gallery (ticks 24 to 32)
+    const isInsideGallery = targetTick >= 24 && targetTick < 32;
+    const threshold = isInsideGallery ? 180 : 100;
+
+    if (deltaAccumulator.current >= threshold) {
+      const ticks = Math.floor(deltaAccumulator.current / threshold);
       setTargetTick((prev) => Math.min(40, prev + ticks));
-      deltaAccumulator.current = deltaAccumulator.current % 100;
-    } else if (deltaAccumulator.current <= -100) {
-      const ticks = Math.floor(Math.abs(deltaAccumulator.current) / 100);
+      deltaAccumulator.current = deltaAccumulator.current % threshold;
+    } else if (deltaAccumulator.current <= -threshold) {
+      const ticks = Math.floor(Math.abs(deltaAccumulator.current) / threshold);
       setTargetTick((prev) => Math.max(0, prev - ticks));
-      deltaAccumulator.current = deltaAccumulator.current % 100;
+      deltaAccumulator.current = deltaAccumulator.current % threshold;
     }
   };
 
@@ -94,6 +141,9 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
   };
 
   const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    // Interrupt menu navigation animation if user touches/swipes manually
+    navAnimRef.current.active = false;
+
     if (touchStart.current === null || e.touches.length !== 1) return;
     const currentY = e.touches[0].clientY;
     const diffY = touchStart.current - currentY;
@@ -112,21 +162,27 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'ArrowDown') {
         e.preventDefault();
+        navAnimRef.current.active = false;
         setTargetTick((prev) => Math.min(40, prev + 1));
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
+        navAnimRef.current.active = false;
         setTargetTick((prev) => Math.max(0, prev - 1));
       } else if (e.key === 'PageDown' || e.key === ' ') {
         e.preventDefault();
+        navAnimRef.current.active = false;
         setTargetTick((prev) => Math.min(40, Math.ceil((prev + 1) / 8) * 8));
       } else if (e.key === 'PageUp') {
         e.preventDefault();
+        navAnimRef.current.active = false;
         setTargetTick((prev) => Math.max(0, Math.floor((prev - 1) / 8) * 8));
       } else if (e.key === 'Home') {
         e.preventDefault();
+        navAnimRef.current.active = false;
         setTargetTick(0);
       } else if (e.key === 'End') {
         e.preventDefault();
+        navAnimRef.current.active = false;
         setTargetTick(40);
       }
     };
@@ -135,18 +191,18 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Menu navigation click handlers targeting exact tick benchmarks
+  // Menu navigation click handlers targeting exact tick benchmarks with ease-in-out
   const navigateTo = (section: '01' | '02' | '03' | '04' | '05' | '06') => {
     if (section === '01' || section === '02') {
-      setTargetTick(0);
+      triggerNavAnimation(0);
     } else if (section === '03') {
-      setTargetTick(8);
+      triggerNavAnimation(8);
     } else if (section === '04') {
-      setTargetTick(16);
+      triggerNavAnimation(16);
     } else if (section === '05') {
-      setTargetTick(24);
+      triggerNavAnimation(24);
     } else if (section === '06') {
-      setTargetTick(40); // Glide fully to the bottom
+      triggerNavAnimation(40); // Glide fully to the bottom
     }
   };
 
@@ -178,9 +234,9 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
   const galleryProgress = Math.max(0, Math.min(1, (currentTick - 24) / 8));
   const horizontalTranslateX = -galleryProgress * maxTranslate;
 
-  // 06 / Portal (Contact) converging gates
+  // 06 / Portal (Contact) converging gates - closes completely only at 100% scroll progress (tick 40)
   const contactProgress = Math.max(0, Math.min(1, (currentTick - 32) / 8));
-  const convergeFactor = Math.max(0, 1.0 - (contactProgress / 0.35));
+  const convergeFactor = Math.max(0, 1.0 - contactProgress);
   const leftConvergeX = convergeFactor * -250;
   const rightConvergeX = convergeFactor * 250;
 
@@ -280,14 +336,12 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
               </div>
 
               <div
-                className="absolute left-6 bottom-[10%] origin-left -rotate-90 hidden xl:flex items-center gap-6 text-[7.5px] tracking-[0.35em] text-[#423f40] group-hover:text-[#a39081]/60 uppercase font-black pointer-events-none transition-colors duration-500"
+                className="absolute left-6 bottom-[15%] origin-left -rotate-90 hidden xl:flex items-center gap-6 text-[7.5px] tracking-[0.35em] text-[#423f40] group-hover:text-[#a39081]/60 uppercase font-black pointer-events-none transition-colors duration-500"
                 style={{ opacity: textFadeOut }}
               >
                 <span>HOLLOW CORE</span>
                 <span>•</span>
-                <span>80Hz - 12.0kHz</span>
-                <span>•</span>
-                <span>MULTISCALE ARCHITECTURE</span>
+                <span>MULTISCALE DESIGN</span>
                 <span>•</span>
                 <span>CARBON RESONATOR</span>
               </div>
@@ -300,10 +354,10 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
                   ACOUSTIC
                 </h2>
                 <p className="text-[10px] leading-relaxed text-[#5a554f] mt-1.5 uppercase tracking-wider font-bold group-hover:text-[#78726a] transition-colors">
-                  Resonant architectural structures utilizing tensioned carbon fiber panels, precise acoustic porting, and customizable scale layouts.
+                  RESONANT HOLLOW-CORE INSTRUMENTS COMBINING ARCHITECTURAL INTEGRITY WITH MULTISCALE FIDELITY.
                 </p>
                 <div className="flex items-center gap-2 mt-4 text-[8px] tracking-[0.3em] text-[#a39081] uppercase font-black opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <span>INITIALIZE SPECIFICATION</span>
+                  <span>CONFIGURE</span>
                   <ArrowRight className="w-3.5 h-3.5 text-[#a39081]" />
                 </div>
               </div>
@@ -326,16 +380,14 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
               </div>
 
               <div
-                className="absolute right-6 bottom-[10%] origin-right rotate-90 hidden xl:flex items-center gap-6 text-[7.5px] tracking-[0.35em] text-[#423f40] group-hover:text-[#a39081]/60 uppercase font-black pointer-events-none transition-colors duration-500"
+                className="absolute right-6 bottom-[15%] origin-right rotate-90 hidden xl:flex items-center gap-6 text-[7.5px] tracking-[0.35em] text-[#423f40] group-hover:text-[#a39081]/60 uppercase font-black pointer-events-none transition-colors duration-500"
                 style={{ opacity: textFadeOut }}
               >
                 <span>ACTIVE PREAMP</span>
                 <span>•</span>
-                <span>50Hz - 8.0kHz</span>
-                <span>•</span>
                 <span>SOLID WOODS</span>
                 <span>•</span>
-                <span>HUMBUCKING LAYOUT</span>
+                <span>HUMBUCKING CORE</span>
               </div>
 
               <div className="relative z-20 flex flex-col gap-2 rounded-none max-w-lg mt-auto">
@@ -346,10 +398,10 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
                   ELECTRIC
                 </h2>
                 <p className="text-[10px] leading-relaxed text-[#5a554f] mt-1.5 uppercase tracking-wider font-bold group-hover:text-[#78726a] transition-colors">
-                  High-output electromagnetic circuits, modular configurations, premium lacquer clears, and custom tone filters.
+                  HIGH-OUTPUT ELECTROMAGNETIC CORE CONSTRUCTIONS DESIGNED FOR UNCOMPROMISED SONIC POWER.
                 </p>
                 <div className="flex items-center gap-2 mt-4 text-[8px] tracking-[0.3em] text-[#a39081] uppercase font-black opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <span>INITIALIZE SPECIFICATION</span>
+                  <span>CONFIGURE</span>
                   <ArrowRight className="w-3.5 h-3.5 text-[#a39081]" />
                 </div>
               </div>
@@ -828,7 +880,7 @@ export const StartupScreen: React.FC<StartupScreenProps> = ({ onSelect }) => {
                 </div>
 
                 <div className="text-[8px] text-[#423f40] uppercase font-bold tracking-widest space-y-1 pt-6 border-t border-[#1c1c1f]">
-                  <div>GENÈVE, SWITZERLAND</div>
+                  <div>Póvoa de Varzim, Portugal</div>
                   <div>© {new Date().getFullYear()} LVI Custom</div>
                 </div>
               </div>
