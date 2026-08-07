@@ -123,7 +123,7 @@ TOTAL PRICE: $${total.toLocaleString()}.00 USD
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `Luxe_Luthiers_Order_${config.instrumentType === 'bass' ? 'Acoustic' : 'Electric'}_${Date.now()}.txt`;
+    link.download = `LVI_Custom_Order_${config.instrumentType === 'bass' ? 'Acoustic' : 'Electric'}_${Date.now()}.txt`;
     link.click();
     URL.revokeObjectURL(url);
 
@@ -159,7 +159,7 @@ TOTAL PRICE: $${total.toLocaleString()}.00 USD
               className="group text-left focus:outline-none rounded-none cursor-pointer"
             >
               <h1 className="text-base font-black tracking-[0.4em] text-[#e3e3e5] group-hover:text-[#a39081] transition-colors uppercase">
-                LUXE LUTHIERS <span className="text-[10px] text-[#5a554f] group-hover:text-[#a39081] font-bold tracking-normal ml-2">← BACK</span>
+                LVI Custom <span className="text-[10px] text-[#5a554f] group-hover:text-[#a39081] font-bold tracking-normal ml-2">← BACK</span>
               </h1>
               <p className="text-[9px] text-[#5a554f] font-bold tracking-[0.2em] uppercase mt-0.5">
                 BESPOKE {config.instrumentType === 'bass' ? 'ACOUSTIC' : 'ELECTRIC'} STUDIO
@@ -167,7 +167,7 @@ TOTAL PRICE: $${total.toLocaleString()}.00 USD
             </button>
           ) : (
             <div className="rounded-none">
-              <h1 className="text-base font-black tracking-[0.4em] text-[#e3e3e5] uppercase">LUXE LUTHIERS</h1>
+              <h1 className="text-base font-black tracking-[0.4em] text-[#e3e3e5] uppercase">LVI Custom</h1>
               <p className="text-[9px] text-[#5a554f] font-bold tracking-[0.2em] uppercase mt-0.5">
                 BESPOKE {config.instrumentType === 'bass' ? 'ACOUSTIC' : 'ELECTRIC'} STUDIO
               </p>
